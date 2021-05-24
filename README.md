@@ -5,7 +5,7 @@ For a typical development environment in conda:
 conda create -n diffit python=3.7 numpy numba flake8 pytest jax ipython jupyter matplotlib scipy h5py
 ```
 
-You can install the package into your environment with
+To install the package into a conda environment:
 ```
 $ conda activate diffit
 $ cd /path/to/root/diffprof
