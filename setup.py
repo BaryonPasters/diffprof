@@ -14,6 +14,6 @@ setup(
     long_description="Differentiable model of halo internal structure",
     install_requires=["numpy", "jax", "scipy"],
     packages=find_packages(),
-    url="https://github.com/aphearin/diffprof",
+    url="https://github.com/BaryonPasters/diffprof",
     package_data={"diffprof": ("tests/testing_data/*.dat",)},
 )
