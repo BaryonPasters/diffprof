@@ -101,7 +101,7 @@ def _mse(target, pred):
 
 
 def loss(params, loss_data):
-    tarr, e_mean_target, e_std_target, method = loss_data
+    tarr, e_mean_target, e_std_target = loss_data
 
     e_histories = mc_generate_e_history(tarr, params)
     e_mean_pred = np.mean(e_histories, axis=0)
