@@ -16,7 +16,7 @@ _a = (0, None, None, None, None)
 _jac_func = jjit(jvmap(grad(u_lgc_vs_lgt, argnums=(1, 2, 3, 4)), in_axes=_a))
 
 
-def fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300):
+def fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300, t_fit_min=T_FIT_MIN):
     """Identify best-fitting parameters for the input concentration history.
 
     Parameters
@@ -55,7 +55,7 @@ def fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300):
     loss_data : two-element sequence of u_params, loss_data
 
     """
-    u_p0, loss_data = get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min)
+    u_p0, loss_data = get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min)
     t, lgc, msk = loss_data
 
     if len(lgc) < 10:
