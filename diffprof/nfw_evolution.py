@@ -15,7 +15,7 @@ CONC_PARAM_BOUNDS = OrderedDict(
     conc_lgtc=(0.0, 1.5),
     conc_k=(0.25, 15.0),
     conc_beta_early=(10 ** LGC_LOG10_CLIP, 0.75),
-    conc_beta_late=(10 ** LGC_LOG10_CLIP, 2.0),
+    conc_beta_late=(10 ** LGC_LOG10_CLIP, 2.5),
 )
 
 
