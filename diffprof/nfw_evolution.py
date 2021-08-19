@@ -9,7 +9,7 @@ LGC_LOG10_CLIP = jnp.log10(jnp.log10(CONC_MIN))
 _X0, _K = 0.0, 0.1
 
 DEFAULT_CONC_PARAMS = OrderedDict(
-    conc_lgtc=0.8, conc_k=5.0, conc_beta_early=0.35, conc_beta_late=1.2
+    conc_lgtc=0.8, conc_k=4.0, conc_beta_early=0.35, conc_beta_late=1.2
 )
 CONC_PARAM_BOUNDS = OrderedDict(
     conc_lgtc=(0.0, 1.5),
