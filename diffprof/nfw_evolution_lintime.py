@@ -10,7 +10,7 @@ CONC_K = 0.25
 
 DEFAULT_CONC_PARAMS = OrderedDict(lgtc=0.7, lgc_min=0.35, lgc_late=1.2)
 CONC_PARAM_BOUNDS = OrderedDict(
-    lgtc=(0.0, 1.5),
+    lgtc=(-1.0, 1.5),
     lgc_min=(jnp.log10(2.0), jnp.log10(5.5)),
     lgc_late=(jnp.log10(2.0), jnp.log10(300.0)),
 )

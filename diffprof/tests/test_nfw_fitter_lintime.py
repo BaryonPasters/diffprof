@@ -32,3 +32,29 @@ def test_conc_fitter():
     # Enforce that the returned loss_data contains the expected information
     for a, b in zip(_loss_data, loss_data):
         assert np.allclose(a, b)
+
+
+def test_conc_fitter_initial_point():
+    P_INIT = np.array(list(DEFAULT_CONC_PARAMS.values()))
+    t_sim = np.linspace(0.1, 14, 100)
+
+    rng = np.random.RandomState(SEED)
+    up_target = rng.normal(loc=0, size=3, scale=1)
+    p_target = get_bounded_params(up_target)
+    lgc_sim = lgc_vs_t(t_sim, *p_target)
+    conc_sim = 10 ** lgc_sim
+    log_mah_sim = np.zeros_like(conc_sim) + 100
+    lgm_min = 0
+
+    res = fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min)
+    p_best, loss, method, loss_data = res
+
+    res2 = fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, p0=P_INIT)
+    p_best2, loss, method, loss_data = res2
+
+    up_ranstart = rng.normal(loc=up_target, scale=1)
+    res3 = fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, p0=up_ranstart)
+    p_best3, loss, method, loss_data = res3
+
+    assert np.allclose(p_best, p_best2)
+    assert not np.allclose(p_best, p_best3)
