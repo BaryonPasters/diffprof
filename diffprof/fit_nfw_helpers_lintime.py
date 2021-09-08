@@ -17,8 +17,12 @@ _a = (0, None, None, None)
 _jac_func = jjit(jvmap(grad(u_lgc_vs_t, argnums=(1, 2, 3)), in_axes=_a))
 
 
-def fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300, t_fit_min=T_FIT_MIN):
-    u_p0, loss_data = get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min)
+def fit_lgconc(
+    t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300, t_fit_min=T_FIT_MIN, p0=None
+):
+    u_p0, loss_data = get_loss_data(
+        t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min, p0=p0
+    )
     t, lgc, msk = loss_data
 
     if len(lgc) < 10:
@@ -70,7 +74,7 @@ def log_conc_mse_loss_and_grads(u_params, loss_data):
     return value_and_grad(log_conc_mse_loss, argnums=0)(u_params, loss_data)
 
 
-def get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min=T_FIT_MIN):
+def get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min, p0):
     t_target, log_conc_target, msk = get_target_data(
         t_sim,
         conc_sim,
@@ -78,7 +82,10 @@ def get_loss_data(t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min=T_FIT_MIN):
         lgm_min,
         t_fit_min,
     )
-    u_p0 = get_unbounded_params(list(DEFAULT_CONC_PARAMS.values()))
+    if p0 is None:
+        u_p0 = get_unbounded_params(list(DEFAULT_CONC_PARAMS.values()))
+    else:
+        u_p0 = get_unbounded_params(p0)
 
     loss_data = (t_target, log_conc_target, msk)
     return u_p0, loss_data
