@@ -134,7 +134,7 @@ def get_outline_bad_fit(halo_id, p_best, loss, method):
 
 
 def get_header():
-    m = "# halo_id method conc_lgtc lgc_min lgc_late conc_loss\n"
+    m = "# halo_id method conc_tc lgc_min lgc_late conc_loss\n"
     return m
 
 
