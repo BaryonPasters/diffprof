@@ -8,16 +8,16 @@ _X0, _K = 0.0, 0.1
 
 CONC_K = 0.25
 
-DEFAULT_CONC_PARAMS = OrderedDict(lgtc=0.7, lgc_min=0.35, lgc_late=1.2)
+DEFAULT_CONC_PARAMS = OrderedDict(tc=5.0, lgc_min=0.35, lgc_late=1.2)
 CONC_PARAM_BOUNDS = OrderedDict(
-    lgtc=(-1.0, 1.5),
+    tc=(-10.0, 50.0),
     lgc_min=(jnp.log10(2.0), jnp.log10(5.5)),
     lgc_late=(jnp.log10(2.0), jnp.log10(300.0)),
 )
 
 
 @jjit
-def lgc_vs_t(t, lgtc, lgc_min, lgc_late):
+def lgc_vs_t(t, tc, lgc_min, lgc_late):
     """Model for evolution of NFW concentration vs time for individual halos
 
     Parameters
@@ -25,8 +25,8 @@ def lgc_vs_t(t, lgtc, lgc_min, lgc_late):
     t : ndarray of shape (n, )
         cosmic time in Gyr
 
-    lgtc : float
-        Base-10 log of cosmic time in Gyr when halo concentration begins to rise
+    tc : float
+        cosmic time in Gyr when halo concentration begins to rise
 
     lgc_min : float
         Power-law index of early-time concentration growth
@@ -40,24 +40,24 @@ def lgc_vs_t(t, lgtc, lgc_min, lgc_late):
         Base-10 log of NFW concentration
 
     """
-    lgc = _sigmoid(t, 10 ** lgtc, CONC_K, lgc_min, lgc_late)
+    lgc = _sigmoid(t, tc, CONC_K, lgc_min, lgc_late)
     return lgc
 
 
 @jjit
-def u_lgc_vs_t(t, u_conc_lgtc, u_lgc_min, u_lgc_late):
-    u_params = u_conc_lgtc, u_lgc_min, u_lgc_late
+def u_lgc_vs_t(t, u_conc_tc, u_lgc_min, u_lgc_late):
+    u_params = u_conc_tc, u_lgc_min, u_lgc_late
     params = get_bounded_params(u_params)
     return lgc_vs_t(t, *params)
 
 
 @jjit
 def get_bounded_params(u_params):
-    u_conc_lgtc, u_lgc_min, u_lgc_late = u_params
-    conc_lgtc = _get_lgtc(u_conc_lgtc)
+    u_conc_tc, u_lgc_min, u_lgc_late = u_params
+    conc_tc = _get_tc(u_conc_tc)
     lgc_min = _get_lgc_min(u_lgc_min)
     lgc_late = _get_lgc_late(u_lgc_late, lgc_min)
-    return jnp.array((conc_lgtc, lgc_min, lgc_late))
+    return jnp.array((conc_tc, lgc_min, lgc_late))
 
 
 @jjit
@@ -76,15 +76,15 @@ def get_unbounded_params(params):
 
     Notes
     -----
-    lgtc, k, and lgc_early have simple rectangular bounds set by CONC_PARAM_BOUNDS.
+    tc, k, and lgc_early have simple rectangular bounds set by CONC_PARAM_BOUNDS.
     The lower bound on lgc_late is lgc_early.
 
     """
-    conc_lgtc, lgc_min, lgc_late = params
-    u_conc_lgtc = _get_u_lgtc(conc_lgtc)
+    conc_tc, lgc_min, lgc_late = params
+    u_conc_tc = _get_u_tc(conc_tc)
     u_lgc_min = _get_u_lgc_min(lgc_min)
     u_lgc_late = _get_u_lgc_late(lgc_late, lgc_min)
-    return jnp.array((u_conc_lgtc, u_lgc_min, u_lgc_late))
+    return jnp.array((u_conc_tc, u_lgc_min, u_lgc_late))
 
 
 @jjit
@@ -100,13 +100,13 @@ def _get_u_lgc_late(lgc_late, lgc_min):
 
 
 @jjit
-def _get_lgtc(u_conc_lgtc):
-    return _sigmoid(u_conc_lgtc, _X0, _K, *CONC_PARAM_BOUNDS["lgtc"])
+def _get_tc(u_conc_tc):
+    return _sigmoid(u_conc_tc, _X0, _K, *CONC_PARAM_BOUNDS["tc"])
 
 
 @jjit
-def _get_u_lgtc(conc_lgtc):
-    return _inverse_sigmoid(conc_lgtc, _X0, _K, *CONC_PARAM_BOUNDS["lgtc"])
+def _get_u_tc(conc_tc):
+    return _inverse_sigmoid(conc_tc, _X0, _K, *CONC_PARAM_BOUNDS["tc"])
 
 
 @jjit

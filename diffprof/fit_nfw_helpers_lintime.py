@@ -18,11 +18,12 @@ _jac_func = jjit(jvmap(grad(u_lgc_vs_t, argnums=(1, 2, 3)), in_axes=_a))
 
 
 def fit_lgconc(
-    t_sim, conc_sim, log_mah_sim, lgm_min, n_step=300, t_fit_min=T_FIT_MIN, p0=None
+    t_sim, conc_sim, log_mah_sim, lgm_min, n_step=200, t_fit_min=T_FIT_MIN, p0=None
 ):
     u_p0, loss_data = get_loss_data(
-        t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min, p0=p0
+        t_sim, conc_sim, log_mah_sim, lgm_min, t_fit_min, p0
     )
+    u_p0 = np.nan_to_num(u_p0, posinf=100.0, neginf=-100.0)
     t, lgc, msk = loss_data
 
     if len(lgc) < 10:
@@ -35,13 +36,16 @@ def fit_lgconc(
         warnings.simplefilter("ignore")
 
         try:
-            u_p = curve_fit(u_lgc_vs_t, t, lgc, p0=u_p0, jac=jac_lgc)[0]
+            u_p, fit_cov = curve_fit(u_lgc_vs_t, t, lgc, p0=u_p0, jac=jac_lgc)
+            assert np.all(np.isfinite(fit_cov))
+            u_p = np.nan_to_num(u_p, posinf=100.0, neginf=-100.0)
             method = 0
             p_best = get_bounded_params(u_p)
             loss = log_conc_mse_loss(u_p, loss_data)
-        except RuntimeError:
+        except (RuntimeError, AssertionError):
             res = jax_adam_wrapper(log_conc_mse_loss_and_grads, u_p0, loss_data, n_step)
             u_p = res[0]
+            u_p = np.nan_to_num(u_p, posinf=100.0, neginf=-100.0)
             if ~np.all(np.isfinite(u_p)):
                 method = -1
                 p_best = np.nan

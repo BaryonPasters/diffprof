@@ -52,9 +52,4 @@ def test_conc_fitter_initial_point():
     res2 = fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, p0=P_INIT)
     p_best2, loss, method, loss_data = res2
 
-    up_ranstart = rng.normal(loc=up_target, scale=1)
-    res3 = fit_lgconc(t_sim, conc_sim, log_mah_sim, lgm_min, p0=up_ranstart)
-    p_best3, loss, method, loss_data = res3
-
     assert np.allclose(p_best, p_best2)
-    assert not np.allclose(p_best, p_best3)
