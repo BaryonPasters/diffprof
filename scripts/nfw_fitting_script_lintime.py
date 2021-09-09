@@ -5,8 +5,8 @@ from mpi4py import MPI
 import argparse
 from time import time
 from diffprof.load_bpl_histories import load_histories, TASSO, BEBOP
-from diffprof.nfw_evolution_lintime import get_outline, get_outline_bad_fit, get_header
-from diffprof.nfw_evolution_lintime import fit_lgconc
+from diffprof.fit_nfw_helpers_lintime import get_outline, get_outline_bad_fit
+from diffprof.fit_nfw_helpers_lintime import fit_lgconc, get_header
 import subprocess
 import h5py
 
