@@ -1,4 +1,4 @@
-"""Diffprof model at a single mass
+"""DiffprofPop model at a single mass
 """
 from collections import OrderedDict
 import numpy as np
