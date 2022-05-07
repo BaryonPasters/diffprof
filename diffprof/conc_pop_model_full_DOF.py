@@ -1,4 +1,4 @@
-"""
+"""Diffprof model at a single mass
 """
 from collections import OrderedDict
 import numpy as np
@@ -8,11 +8,11 @@ from jax import vmap
 from jax import ops as jops
 from jax.scipy.stats import multivariate_normal as jax_multi_norm
 from jax.scipy.stats import norm as jax_norm
-from diffprof.nfw_evolution import lgc_vs_lgt
-from diffprof.nfw_evolution import _get_u_beta_early, _get_u_beta_late, _get_u_lgtc
-from diffprof.nfw_evolution import CONC_PARAM_BOUNDS
-from diffprof.nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
-from diffprof.latin_hypercube import latin_hypercube
+from .nfw_evolution import lgc_vs_lgt
+from .nfw_evolution import _get_u_beta_early, _get_u_beta_late, _get_u_lgtc
+from .nfw_evolution import CONC_PARAM_BOUNDS
+from .nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
+from .latin_hypercube import latin_hypercube
 
 FIXED_PARAMS = OrderedDict(
     u_lgtc_v_pc_k=4,
@@ -22,7 +22,7 @@ FIXED_PARAMS = OrderedDict(
     chol_lgtc_bl_k=2,
 )
 
-DEFAULT_PARAMS = OrderedDict(
+DEFAULTS_SINGLEMASS = OrderedDict(
     mean_u_be=-5.4,
     lg_std_u_be=0.91,
     u_lgtc_v_pc_tp=0.68,
@@ -48,27 +48,27 @@ lgc_vs_lgt_vmap = jjit(vmap(lgc_vs_lgt, in_axes=_a))
 lgc_vs_lgt_p50_pop = jjit(vmap(lgc_vs_lgt_vmap, in_axes=_a))
 
 
-def get_default_params(
-    mean_u_be=DEFAULT_PARAMS["mean_u_be"],
-    lg_std_u_be=DEFAULT_PARAMS["lg_std_u_be"],
-    u_lgtc_v_pc_tp=DEFAULT_PARAMS["u_lgtc_v_pc_tp"],
-    u_lgtc_v_pc_val_at_tp=DEFAULT_PARAMS["u_lgtc_v_pc_val_at_tp"],
-    u_lgtc_v_pc_slopelo=DEFAULT_PARAMS["u_lgtc_v_pc_slopelo"],
-    u_lgtc_v_pc_slopehi=DEFAULT_PARAMS["u_lgtc_v_pc_slopehi"],
-    u_cbl_v_pc_val_at_tp=DEFAULT_PARAMS["u_cbl_v_pc_val_at_tp"],
-    u_cbl_v_pc_slopelo=DEFAULT_PARAMS["u_cbl_v_pc_slopelo"],
-    u_cbl_v_pc_slopehi=DEFAULT_PARAMS["u_cbl_v_pc_slopehi"],
-    lg_chol_lgtc_lgtc=DEFAULT_PARAMS["lg_chol_lgtc_lgtc"],
-    lg_chol_bl_bl=DEFAULT_PARAMS["lg_chol_bl_bl"],
-    chol_lgtc_bl_ylo=DEFAULT_PARAMS["chol_lgtc_bl_ylo"],
-    chol_lgtc_bl_yhi=DEFAULT_PARAMS["chol_lgtc_bl_yhi"],
-    u_lgtc_v_pc_k=DEFAULT_PARAMS["u_lgtc_v_pc_k"],
-    u_cbl_v_pc_k=DEFAULT_PARAMS["u_cbl_v_pc_k"],
-    u_cbl_v_pc_tp=DEFAULT_PARAMS["u_cbl_v_pc_tp"],
-    chol_lgtc_bl_x0=DEFAULT_PARAMS["chol_lgtc_bl_x0"],
-    chol_lgtc_bl_k=DEFAULT_PARAMS["chol_lgtc_bl_k"],
+def get_DEFAULTS_SINGLEMASS(
+    mean_u_be=DEFAULTS_SINGLEMASS["mean_u_be"],
+    lg_std_u_be=DEFAULTS_SINGLEMASS["lg_std_u_be"],
+    u_lgtc_v_pc_tp=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_tp"],
+    u_lgtc_v_pc_val_at_tp=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_val_at_tp"],
+    u_lgtc_v_pc_slopelo=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_slopelo"],
+    u_lgtc_v_pc_slopehi=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_slopehi"],
+    u_cbl_v_pc_val_at_tp=DEFAULTS_SINGLEMASS["u_cbl_v_pc_val_at_tp"],
+    u_cbl_v_pc_slopelo=DEFAULTS_SINGLEMASS["u_cbl_v_pc_slopelo"],
+    u_cbl_v_pc_slopehi=DEFAULTS_SINGLEMASS["u_cbl_v_pc_slopehi"],
+    lg_chol_lgtc_lgtc=DEFAULTS_SINGLEMASS["lg_chol_lgtc_lgtc"],
+    lg_chol_bl_bl=DEFAULTS_SINGLEMASS["lg_chol_bl_bl"],
+    chol_lgtc_bl_ylo=DEFAULTS_SINGLEMASS["chol_lgtc_bl_ylo"],
+    chol_lgtc_bl_yhi=DEFAULTS_SINGLEMASS["chol_lgtc_bl_yhi"],
+    u_lgtc_v_pc_k=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_k"],
+    u_cbl_v_pc_k=DEFAULTS_SINGLEMASS["u_cbl_v_pc_k"],
+    u_cbl_v_pc_tp=DEFAULTS_SINGLEMASS["u_cbl_v_pc_tp"],
+    chol_lgtc_bl_x0=DEFAULTS_SINGLEMASS["chol_lgtc_bl_x0"],
+    chol_lgtc_bl_k=DEFAULTS_SINGLEMASS["chol_lgtc_bl_k"],
 ):
-    default_params = (
+    DEFAULTS_SINGLEMASS = (
         mean_u_be,
         lg_std_u_be,
         u_lgtc_v_pc_tp,
@@ -88,7 +88,7 @@ def get_default_params(
         chol_lgtc_bl_x0,
         chol_lgtc_bl_k,
     )
-    return default_params
+    return DEFAULTS_SINGLEMASS
 
 
 @jjit
@@ -206,7 +206,7 @@ def parse_all_params(params_p50):
 @jjit
 def mean_and_cov_u_be(p50_arr, mean_u_be, lg_std_u_be):
     mu = jnp.zeros_like(p50_arr) + mean_u_be
-    std = jnp.zeros_like(p50_arr) + 10 ** lg_std_u_be
+    std = jnp.zeros_like(p50_arr) + 10**lg_std_u_be
     return mu, std
 
 
@@ -318,7 +318,7 @@ def get_chol_lgtc_lgtc(
     p50_arr,
     lg_chol_lgtc_lgtc,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_lgtc_lgtc
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_lgtc_lgtc
 
 
 @jjit
@@ -326,7 +326,7 @@ def get_chol_bl_bl(
     p50_arr,
     lg_chol_bl_bl,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_bl_bl
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_bl_bl
 
 
 @jjit
