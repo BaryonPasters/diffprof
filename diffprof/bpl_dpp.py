@@ -1,7 +1,7 @@
 """
 """
 from collections import OrderedDict
-from nfw_evolution import DEFAULT_CONC_PARAMS
+from .nfw_evolution import DEFAULT_CONC_PARAMS
 
 
 CONC_K = DEFAULT_CONC_PARAMS["conc_k"]

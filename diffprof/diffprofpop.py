@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from jax import jit as jjit
 from jax import numpy as jnp
-from bpl_dpp import DEFAULT_PARAMS
+from .bpl_dpp import DEFAULT_PARAMS
 
 
 @jjit

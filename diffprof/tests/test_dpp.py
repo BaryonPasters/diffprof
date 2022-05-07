@@ -1,6 +1,6 @@
 """
 """
-from diffprofpop import DEFAULT_PARAMS, PARAMS_LBOUNDS, PARAMS_UBOUNDS
+from ..bpl_dpp import DEFAULT_PARAMS, PARAMS_LBOUNDS, PARAMS_UBOUNDS
 
 
 def test_bounds():
