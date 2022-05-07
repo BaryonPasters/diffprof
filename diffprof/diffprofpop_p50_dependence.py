@@ -6,8 +6,8 @@ from jax import numpy as jnp
 from jax import ops as jops
 from jax.scipy.stats import multivariate_normal as jax_multi_norm
 from jax.scipy.stats import norm as jax_norm
-from nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
-from nfw_evolution import lgc_vs_lgt
+from .nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
+from .nfw_evolution import lgc_vs_lgt
 
 
 @jjit
@@ -118,7 +118,7 @@ def get_pdf_weights_on_grid(p50_arr, u_be_grid, u_lgtc_bl_grid, conc_k, params_p
 @jjit
 def mean_and_cov_u_be(p50_arr, mean_u_be, lg_std_u_be):
     mu = jnp.zeros_like(p50_arr) + mean_u_be
-    std = jnp.zeros_like(p50_arr) + 10 ** lg_std_u_be
+    std = jnp.zeros_like(p50_arr) + 10**lg_std_u_be
     return mu, std
 
 
@@ -217,7 +217,7 @@ def get_chol_lgtc_lgtc(
     p50_arr,
     lg_chol_lgtc_lgtc,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_lgtc_lgtc
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_lgtc_lgtc
 
 
 @jjit
@@ -225,7 +225,7 @@ def get_chol_bl_bl(
     p50_arr,
     lg_chol_bl_bl,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_bl_bl
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_bl_bl
 
 
 @jjit
