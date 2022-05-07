@@ -3,7 +3,6 @@
 from jax import vmap
 from jax import jit as jjit
 from jax import numpy as jnp
-from jax import ops as jops
 from jax.scipy.stats import multivariate_normal as jax_multi_norm
 from jax.scipy.stats import norm as jax_norm
 from .nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
@@ -35,9 +34,9 @@ lgc_vs_lgt_p50_pop = jjit(vmap(lgc_vs_lgt_vmap, in_axes=_a))
 @jjit
 def _get_cov_scalar(m00, m11, m01):
     chol = jnp.zeros((2, 2)).astype("f4")
-    chol = jops.index_update(chol, jops.index[0, 0], m00)
-    chol = jops.index_update(chol, jops.index[1, 1], m11)
-    chol = jops.index_update(chol, jops.index[1, 0], m01)
+    chol = chol.at[(0, 0)].set(m00)
+    chol = chol.at[(1, 1)].set(m11)
+    chol = chol.at[(1, 0)].set(m01)
     cov = jnp.dot(chol, chol.T)
     return cov
 

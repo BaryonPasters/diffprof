@@ -5,7 +5,6 @@ import numpy as np
 from jax import numpy as jnp
 from jax import jit as jjit
 from jax import vmap
-from jax import ops as jops
 from jax.scipy.stats import multivariate_normal as jax_multi_norm
 from jax.scipy.stats import norm as jax_norm
 from .nfw_evolution import lgc_vs_lgt
@@ -174,7 +173,7 @@ def parse_all_params(params_p50):
 @jjit
 def mean_and_cov_u_be(p50_arr, mean_u_be, lg_std_u_be):
     mu = jnp.zeros_like(p50_arr) + mean_u_be
-    std = jnp.zeros_like(p50_arr) + 10 ** lg_std_u_be
+    std = jnp.zeros_like(p50_arr) + 10**lg_std_u_be
     return mu, std
 
 
@@ -219,9 +218,9 @@ def mean_and_cov_u_lgtc_bl(
 @jjit
 def _get_cov_scalar(m00, m11, m01):
     chol = jnp.zeros((2, 2)).astype("f4")
-    chol = jops.index_update(chol, jops.index[0, 0], m00)
-    chol = jops.index_update(chol, jops.index[1, 1], m11)
-    chol = jops.index_update(chol, jops.index[1, 0], m01)
+    chol = chol.at[(0, 0)].set(m00)
+    chol = chol.at[(1, 1)].set(m11)
+    chol = chol.at[(1, 0)].set(m01)
     cov = jnp.dot(chol, chol.T)
     return cov
 
@@ -269,7 +268,7 @@ def get_chol_lgtc_lgtc(
     p50_arr,
     lg_chol_lgtc_lgtc,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_lgtc_lgtc
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_lgtc_lgtc
 
 
 @jjit
@@ -277,7 +276,7 @@ def get_chol_bl_bl(
     p50_arr,
     lg_chol_bl_bl,
 ):
-    return jnp.zeros_like(p50_arr) + 10 ** lg_chol_bl_bl
+    return jnp.zeros_like(p50_arr) + 10**lg_chol_bl_bl
 
 
 @jjit
