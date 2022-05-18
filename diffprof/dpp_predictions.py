@@ -2,10 +2,29 @@
 """
 from jax import jit as jjit
 from jax import numpy as jnp
-from diffprofpop import get_param_grids_from_u_param_grids
-from bpl_dpp import CONC_K
-from diffprofpop_p50_dependence import get_pdf_weights_on_grid
-from diffprofpop_p50_dependence import lgc_pop_vs_lgt_and_p50
+from .bpl_dpp import CONC_K
+from .diffprofpop_p50_dependence import get_pdf_weights_on_grid
+from .diffprofpop_p50_dependence import lgc_pop_vs_lgt_and_p50
+from .nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
+from .diffprofpop import get_singlemass_params_p50
+
+
+@jjit
+def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid):
+    singlemass_params_p50 = get_singlemass_params_p50(lgm, *params)
+    return get_predictions_from_singlemass_params_p50(
+        singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
+    )
+    # avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0 = _res
+    # return avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0
+
+
+def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):
+    be_grid = _get_beta_early(u_be_grid)
+    lgtc_grid = _get_lgtc(u_lgtc_bl_grid[:, 0])
+    bl_grid = _get_beta_late(u_lgtc_bl_grid[:, 1], be_grid)
+    lgtc_bl_grid = jnp.vstack((lgtc_grid, bl_grid)).T
+    return be_grid, lgtc_bl_grid
 
 
 @jjit
@@ -35,36 +54,18 @@ def get_predictions_from_singlemass_params_p50(
     )
 
     avg_log_conc_lgm0 = jnp.mean(avg_log_conc_p50, axis=0)
+    N_T = avg_log_conc_lgm0.shape[0]
 
-    avg_sq_lgconc_p50 = jnp.mean(
-        jnp.sum(
-            combined_u_weights.reshape((N_GRID, N_P50, 1)) * ((lgc_p50_pop) ** 2),
-            axis=0,
-        ),
-        axis=0,
-    )
-    sq_avg_lgconc_p50 = (
-        jnp.mean(
-            jnp.sum(
-                combined_u_weights.reshape((N_GRID, N_P50, 1)) * (lgc_p50_pop), axis=0
-            ),
-            axis=0,
-        )
-        ** 2
-    )
+    delta_log_conc_lgm0 = lgc_p50_pop - avg_log_conc_lgm0.reshape((1, 1, N_T))
+    delta_log_conc_lgm0_sq = delta_log_conc_lgm0**2
+    integrand = delta_log_conc_lgm0_sq * combined_u_weights.reshape((N_GRID, N_P50, 1))
+    variance_log_conc_lgm0 = jnp.mean(jnp.sum(integrand, axis=0), axis=0)
+    std_log_conc_lgm0 = jnp.sqrt(variance_log_conc_lgm0)
 
-    log_conc_std_lgm0 = jnp.sqrt(avg_sq_lgconc_p50 - sq_avg_lgconc_p50)
+    delta_log_conc_p50 = lgc_p50_pop - avg_log_conc_p50.reshape((1, N_P50, N_T))
+    delta_log_conc_p50_sq = delta_log_conc_p50**2
+    integrand = delta_log_conc_p50_sq * combined_u_weights.reshape((N_GRID, N_P50, 1))
+    variance_log_conc_p50 = jnp.sum(integrand, axis=0)
+    std_log_conc_p50 = jnp.sqrt(variance_log_conc_p50)
 
-    avg_sq_lgconc_multiple_p50 = jnp.sum(
-        combined_u_weights.reshape((N_GRID, N_P50, 1)) * ((lgc_p50_pop) ** 2), axis=0
-    )
-    sq_avg_lgconc_multiple_p50 = (
-        jnp.sum(combined_u_weights.reshape((N_GRID, N_P50, 1)) * (lgc_p50_pop), axis=0)
-        ** 2
-    )
-
-    log_conc_std_p50 = jnp.sqrt(
-        jnp.abs(avg_sq_lgconc_multiple_p50 - sq_avg_lgconc_multiple_p50)
-    )
-
-    return avg_log_conc_p50, avg_log_conc_lgm0, log_conc_std_lgm0, log_conc_std_p50
+    return avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_lgm0, std_log_conc_p50
