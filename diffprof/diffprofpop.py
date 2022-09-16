@@ -367,4 +367,4 @@ def get_singlemass_params_p50(
         chol_lgtc_bl_k,
     )
 
-    return singlemass_dpp_params
+    return jnp.array(singlemass_dpp_params)
