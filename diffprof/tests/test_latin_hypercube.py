@@ -3,6 +3,7 @@
 import numpy as np
 from ..latin_hypercube import latin_hypercube, latin_hypercube_from_cov
 from ..latin_hypercube import uniform_random_hypercube, latin_hypercube_pydoe
+from ..latin_hypercube import HAS_PYDOE2
 
 
 def verify_lhs_respects_bounds(box, xmins, xmaxs):
@@ -16,8 +17,9 @@ def test_latin_hypercube_pydoe_respects_bounds():
     xmaxs = (2, 3, 5)
     n_dim = len(xmins)
     npts = 5000
-    lhs_box = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts)
-    verify_lhs_respects_bounds(lhs_box, xmins, xmaxs)
+    if HAS_PYDOE2:
+        lhs_box = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts)
+        verify_lhs_respects_bounds(lhs_box, xmins, xmaxs)
 
 
 def test_uniform_random_hypercube_respects_bounds():
@@ -46,11 +48,12 @@ def test_latin_hypercube_pydoe_is_reproducible():
     xmaxs = (2, 3, 5)
     n_dim = len(xmins)
     npts = 5000
-    lhs_box = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=0)
-    lhs_box1 = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=0)
-    lhs_box2 = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=2)
-    assert np.allclose(lhs_box, lhs_box1)
-    assert not np.allclose(lhs_box, lhs_box2)
+    if HAS_PYDOE2:
+        lhs_box = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=0)
+        lhs_box1 = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=0)
+        lhs_box2 = latin_hypercube_pydoe(xmins, xmaxs, n_dim, npts, seed=2)
+        assert np.allclose(lhs_box, lhs_box1)
+        assert not np.allclose(lhs_box, lhs_box2)
 
 
 def test_latin_hypercube_is_reproducible():
