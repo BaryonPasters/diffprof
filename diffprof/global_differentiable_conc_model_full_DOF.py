@@ -289,7 +289,6 @@ def _loss(params, loss_data):
             mean_losses += _mse(
                 lgc_mean_targets_lgm0_p50[ilgm][ip50], avg_log_conc_p50[ip50]
             )
-            # std_losses += _mse(lgc_std_targets_lgm0_p50[ilgm][ip50],log_conc_std_p50[ip50])
         mean_losses += _mse(lgc_mean_targets_lgm0[ilgm], avg_log_conc_lgm0)
         std_losses += _mse(lgc_std_targets_lgm0[ilgm], std_log_conc_lgm0)
 
