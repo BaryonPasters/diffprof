@@ -1,5 +1,8 @@
 # diffprof
 
+## Branch comments
+This branch holds unfinished development on models of the evolution of halo ellipticity 
+
 For a typical development environment in conda:
 ```
 conda create -n diffit python=3.7 numpy numba flake8 pytest jax ipython jupyter matplotlib scipy h5py
