@@ -1,4 +1,4 @@
-"""
+"""DiffprofPop model at a single mass
 """
 from collections import OrderedDict
 import numpy as np
@@ -21,7 +21,7 @@ FIXED_PARAMS = OrderedDict(
     chol_lgtc_bl_k=2,
 )
 
-DEFAULT_PARAMS = OrderedDict(
+DEFAULTS_SINGLEMASS = OrderedDict(
     mean_u_be=-5.4,
     lg_std_u_be=0.91,
     u_lgtc_v_pc_tp=0.68,
@@ -35,6 +35,11 @@ DEFAULT_PARAMS = OrderedDict(
     lg_chol_bl_bl=0.58,
     chol_lgtc_bl_ylo=4.5,
     chol_lgtc_bl_yhi=2.5,
+    u_lgtc_v_pc_k=4,
+    u_cbl_v_pc_k=4,
+    u_cbl_v_pc_tp=0.7,
+    chol_lgtc_bl_x0=0.6,
+    chol_lgtc_bl_k=2,
 )
 
 _a = (None, 0, None, 0, 0)
@@ -42,22 +47,27 @@ lgc_vs_lgt_vmap = jjit(vmap(lgc_vs_lgt, in_axes=_a))
 lgc_vs_lgt_p50_pop = jjit(vmap(lgc_vs_lgt_vmap, in_axes=_a))
 
 
-def get_default_params(
-    mean_u_be=DEFAULT_PARAMS["mean_u_be"],
-    lg_std_u_be=DEFAULT_PARAMS["lg_std_u_be"],
-    u_lgtc_v_pc_tp=DEFAULT_PARAMS["u_lgtc_v_pc_tp"],
-    u_lgtc_v_pc_val_at_tp=DEFAULT_PARAMS["u_lgtc_v_pc_val_at_tp"],
-    u_lgtc_v_pc_slopelo=DEFAULT_PARAMS["u_lgtc_v_pc_slopelo"],
-    u_lgtc_v_pc_slopehi=DEFAULT_PARAMS["u_lgtc_v_pc_slopehi"],
-    u_cbl_v_pc_val_at_tp=DEFAULT_PARAMS["u_cbl_v_pc_val_at_tp"],
-    u_cbl_v_pc_slopelo=DEFAULT_PARAMS["u_cbl_v_pc_slopelo"],
-    u_cbl_v_pc_slopehi=DEFAULT_PARAMS["u_cbl_v_pc_slopehi"],
-    lg_chol_lgtc_lgtc=DEFAULT_PARAMS["lg_chol_lgtc_lgtc"],
-    lg_chol_bl_bl=DEFAULT_PARAMS["lg_chol_bl_bl"],
-    chol_lgtc_bl_ylo=DEFAULT_PARAMS["chol_lgtc_bl_ylo"],
-    chol_lgtc_bl_yhi=DEFAULT_PARAMS["chol_lgtc_bl_yhi"],
+def get_DEFAULTS_SINGLEMASS(
+    mean_u_be=DEFAULTS_SINGLEMASS["mean_u_be"],
+    lg_std_u_be=DEFAULTS_SINGLEMASS["lg_std_u_be"],
+    u_lgtc_v_pc_tp=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_tp"],
+    u_lgtc_v_pc_val_at_tp=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_val_at_tp"],
+    u_lgtc_v_pc_slopelo=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_slopelo"],
+    u_lgtc_v_pc_slopehi=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_slopehi"],
+    u_cbl_v_pc_val_at_tp=DEFAULTS_SINGLEMASS["u_cbl_v_pc_val_at_tp"],
+    u_cbl_v_pc_slopelo=DEFAULTS_SINGLEMASS["u_cbl_v_pc_slopelo"],
+    u_cbl_v_pc_slopehi=DEFAULTS_SINGLEMASS["u_cbl_v_pc_slopehi"],
+    lg_chol_lgtc_lgtc=DEFAULTS_SINGLEMASS["lg_chol_lgtc_lgtc"],
+    lg_chol_bl_bl=DEFAULTS_SINGLEMASS["lg_chol_bl_bl"],
+    chol_lgtc_bl_ylo=DEFAULTS_SINGLEMASS["chol_lgtc_bl_ylo"],
+    chol_lgtc_bl_yhi=DEFAULTS_SINGLEMASS["chol_lgtc_bl_yhi"],
+    u_lgtc_v_pc_k=DEFAULTS_SINGLEMASS["u_lgtc_v_pc_k"],
+    u_cbl_v_pc_k=DEFAULTS_SINGLEMASS["u_cbl_v_pc_k"],
+    u_cbl_v_pc_tp=DEFAULTS_SINGLEMASS["u_cbl_v_pc_tp"],
+    chol_lgtc_bl_x0=DEFAULTS_SINGLEMASS["chol_lgtc_bl_x0"],
+    chol_lgtc_bl_k=DEFAULTS_SINGLEMASS["chol_lgtc_bl_k"],
 ):
-    default_params = (
+    DEFAULTS_SINGLEMASS = (
         mean_u_be,
         lg_std_u_be,
         u_lgtc_v_pc_tp,
@@ -71,8 +81,13 @@ def get_default_params(
         lg_chol_bl_bl,
         chol_lgtc_bl_ylo,
         chol_lgtc_bl_yhi,
+        u_lgtc_v_pc_k,
+        u_cbl_v_pc_k,
+        u_cbl_v_pc_tp,
+        chol_lgtc_bl_x0,
+        chol_lgtc_bl_k,
     )
-    return default_params
+    return DEFAULTS_SINGLEMASS
 
 
 @jjit
@@ -151,10 +166,20 @@ def get_pdf_weights_on_grid(p50_arr, u_be_grid, u_lgtc_bl_grid, conc_k, params_p
 @jjit
 def get_means_and_covs(p50_arr, conc_k, params_p50):
     _res = parse_all_params(params_p50)
-    be_params, mean_lgtc_params, mean_bl_params, cov_lgtc_bl_params = _res
+    (
+        be_params,
+        mean_lgtc_params,
+        mean_bl_params,
+        cov_lgtc_bl_params,
+        prev_fixed_params,
+    ) = _res
     mean_u_be, std_u_be = mean_and_cov_u_be(p50_arr, *be_params)
     _res = mean_and_cov_u_lgtc_bl(
-        p50_arr, *mean_lgtc_params, *mean_bl_params, *cov_lgtc_bl_params
+        p50_arr,
+        *mean_lgtc_params,
+        *mean_bl_params,
+        *cov_lgtc_bl_params,
+        *prev_fixed_params,
     )
     mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl = _res
     return mean_u_be, std_u_be, mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl
@@ -165,9 +190,16 @@ def parse_all_params(params_p50):
     mean_u_be, lg_std_u_be = params_p50[:2]
     mean_lgtc_params = params_p50[2:6]
     mean_bl_params = params_p50[6:10]
-    cov_lgtc_bl_params = params_p50[10:]
+    cov_lgtc_bl_params = params_p50[10:13]
+    prev_fixed_params = params_p50[13:]
     be_params = mean_u_be, lg_std_u_be
-    return be_params, mean_lgtc_params, mean_bl_params, cov_lgtc_bl_params
+    return (
+        be_params,
+        mean_lgtc_params,
+        mean_bl_params,
+        cov_lgtc_bl_params,
+        prev_fixed_params,
+    )
 
 
 @jjit
@@ -191,24 +223,38 @@ def mean_and_cov_u_lgtc_bl(
     lg_chol_bl_bl,
     chol_lgtc_bl_ylo,
     chol_lgtc_bl_yhi,
+    u_lgtc_v_pc_k,
+    u_cbl_v_pc_k,
+    u_cbl_v_pc_tp,
+    chol_lgtc_bl_x0,
+    chol_lgtc_bl_k,
 ):
     mean_u_lgtc = get_mean_u_lgtc(
         p50_arr,
         u_lgtc_v_pc_tp,
         u_lgtc_v_pc_val_at_tp,
+        u_lgtc_v_pc_k,
         u_lgtc_v_pc_slopelo,
         u_lgtc_v_pc_slopehi,
     )
     mean_u_bl = get_mean_u_beta_late(
         p50_arr,
         u_cbl_v_pc_val_at_tp,
+        u_cbl_v_pc_tp,
+        u_cbl_v_pc_k,
         u_cbl_v_pc_slopelo,
         u_cbl_v_pc_slopehi,
     )
 
     chol_lgtc_lgtc = get_chol_lgtc_lgtc(p50_arr, lg_chol_lgtc_lgtc)
     chol_bl_bl = get_chol_bl_bl(p50_arr, lg_chol_bl_bl)
-    chol_lgtc_bl = get_chol_lgtc_bl(p50_arr, chol_lgtc_bl_ylo, chol_lgtc_bl_yhi)
+    chol_lgtc_bl = get_chol_lgtc_bl(
+        p50_arr,
+        chol_lgtc_bl_x0,
+        chol_lgtc_bl_k,
+        chol_lgtc_bl_ylo,
+        chol_lgtc_bl_yhi,
+    )
 
     cov_u_lgtc_bl = _get_cov_vmap(chol_lgtc_lgtc, chol_bl_bl, chol_lgtc_bl)
 
@@ -233,6 +279,7 @@ def get_mean_u_lgtc(
     p50_arr,
     u_lgtc_v_pc_tp,
     u_lgtc_v_pc_val_at_tp,
+    u_lgtc_v_pc_k,
     u_lgtc_v_pc_slopelo,
     u_lgtc_v_pc_slopehi,
 ):
@@ -240,7 +287,7 @@ def get_mean_u_lgtc(
         p50_arr,
         u_lgtc_v_pc_val_at_tp,
         u_lgtc_v_pc_tp,
-        FIXED_PARAMS["u_lgtc_v_pc_k"],
+        u_lgtc_v_pc_k,
         u_lgtc_v_pc_slopelo,
         u_lgtc_v_pc_slopehi,
     )
@@ -250,14 +297,16 @@ def get_mean_u_lgtc(
 def get_mean_u_beta_late(
     p50_arr,
     u_cbl_v_pc_val_at_tp,
+    u_cbl_v_pc_tp,
+    u_cbl_v_pc_k,
     u_cbl_v_pc_slopelo,
     u_cbl_v_pc_slopehi,
 ):
     return _sig_slope(
         p50_arr,
         u_cbl_v_pc_val_at_tp,
-        FIXED_PARAMS["u_cbl_v_pc_tp"],
-        FIXED_PARAMS["u_cbl_v_pc_k"],
+        u_cbl_v_pc_tp,
+        u_cbl_v_pc_k,
         u_cbl_v_pc_slopelo,
         u_cbl_v_pc_slopehi,
     )
@@ -282,13 +331,15 @@ def get_chol_bl_bl(
 @jjit
 def get_chol_lgtc_bl(
     p50_arr,
+    chol_lgtc_bl_x0,
+    chol_lgtc_bl_k,
     chol_lgtc_bl_ylo,
     chol_lgtc_bl_yhi,
 ):
     return _sigmoid(
         p50_arr,
-        FIXED_PARAMS["chol_lgtc_bl_x0"],
-        FIXED_PARAMS["chol_lgtc_bl_k"],
+        chol_lgtc_bl_x0,
+        chol_lgtc_bl_k,
         chol_lgtc_bl_ylo,
         chol_lgtc_bl_yhi,
     )

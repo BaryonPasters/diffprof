@@ -7,9 +7,9 @@ from .diffconc_target_data_model import approximate_lgconc_vs_lgm_p50
 
 
 @jjit
-def predict_lgconc_vs_lgm_p50(varied_params, tarr, lgmhalo_arr, p50_arr):
+def predict_lgconc_vs_lgm_p50(varied_params, tarr, lgmhalo, p50):
     params = get_params_from_varied_params(varied_params)
-    lgconc = approximate_lgconc_vs_lgm_p50(tarr, lgmhalo_arr, p50_arr, *params)
+    lgconc = approximate_lgconc_vs_lgm_p50(tarr, lgmhalo, p50, *params)
     return lgconc
 
 

@@ -3,12 +3,7 @@
 import numpy as np
 from scipy.stats.mstats import trimmed_mean, trimmed_std
 
-try:
-    from param_scan.latin_hypercube import latin_hypercube
-
-    HAS_LHS = True
-except (ModuleNotFoundError, ImportError):
-    HAS_LHS = False
+from .latin_hypercube import latin_hypercube
 
 LGMH_MIN, LGMH_MAX = 11.5, 14.5
 
@@ -29,9 +24,6 @@ def target_data_generator(
     dlgmh=0.1,
     dp=0.05,
 ):
-    if not HAS_LHS:
-        raise ImportError("Need to install https://github.com/aphearin/param_scan")
-
     while True:
         lgmhalo_targets = np.sort(
             latin_hypercube(lgmh_min, lgmh_max, 1, n_mh_out).flatten()
