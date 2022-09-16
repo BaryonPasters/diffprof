@@ -5,7 +5,7 @@ from ..conc_pop_model import get_u_param_grids
 from ..conc_pop_model import DEFAULT_PARAMS, get_pdf_weights_on_grid
 from ..nfw_evolution import DEFAULT_CONC_PARAMS
 from ..conc_pop_model import lgc_pop_vs_lgt_and_p50
-from ..conc_pop_model import lgc_pop_vs_lgt_and_p50, get_param_grids_from_u_param_grids
+from ..conc_pop_model import get_param_grids_from_u_param_grids
 
 
 def test_get_pdf_weights_on_grid():
