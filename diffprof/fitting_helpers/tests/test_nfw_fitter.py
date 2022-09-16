@@ -1,7 +1,7 @@
 """
 """
 import numpy as np
-from ..nfw_evolution import lgc_vs_lgt, get_bounded_params
+from ...nfw_evolution import lgc_vs_lgt, get_bounded_params
 from ..fit_nfw_helpers import fit_lgconc, get_loss_data
 
 SEED = 32

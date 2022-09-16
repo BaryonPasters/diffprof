@@ -3,7 +3,7 @@
 from jax import numpy as jnp
 from jax import jit as jjit
 from jax import vmap
-from .diffconc_target_data_model import approximate_lgconc_vs_lgm_p50
+from ..diffconc_target_data_model import approximate_lgconc_vs_lgm_p50
 
 
 @jjit
