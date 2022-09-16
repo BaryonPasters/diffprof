@@ -12,7 +12,7 @@ setup(
     author_email="ahearin@anl.gov",
     description="Differentiable model of halo internal structure",
     long_description="Differentiable model of halo internal structure",
-    install_requires=["numpy", "jax", "scipy"],
+    install_requires=["numpy", "jax", "scipy", "astropy"],
     packages=find_packages(),
     url="https://github.com/BaryonPasters/diffprof",
     package_data={"diffprof": ("tests/testing_data/*.dat",)},
