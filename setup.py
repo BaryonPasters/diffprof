@@ -1,13 +1,20 @@
+import os
 from setuptools import setup, find_packages
 
 
+__version__ = None
+pth = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "diffprof", "_version.py"
+)
+with open(pth, "r") as fp:
+    exec(fp.read())
+
 PACKAGENAME = "diffprof"
-VERSION = "0.0.1"
 
 
 setup(
     name=PACKAGENAME,
-    version=VERSION,
+    version=__version__,
     author=("Dash Stevanovich", "Andrew Hearin", "Erwin Lau", "Daisuke Nagai"),
     author_email="ahearin@anl.gov",
     description="Differentiable model of halo internal structure",
