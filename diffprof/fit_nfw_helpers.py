@@ -5,7 +5,7 @@ from jax import jit as jjit
 from jax import numpy as jnp
 from jax import value_and_grad, grad
 from jax import vmap as jvmap
-from jax.experimental import optimizers as jax_opt
+from jax.example_libraries import optimizers as jax_opt
 from scipy.optimize import curve_fit
 from .nfw_evolution import u_lgc_vs_lgt
 from .nfw_evolution import get_unbounded_params, get_bounded_params, DEFAULT_CONC_PARAMS
