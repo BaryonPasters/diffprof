@@ -1,5 +1,4 @@
-"""
-"""
+"""This module implements the loss functions used to optimize DiffprofPop"""
 from collections import namedtuple
 from jax import jit as jjit
 from jax import vmap
@@ -26,6 +25,15 @@ def _mse_loss_singlemass(
     target_avg_log_conc_lgm0,
     target_std_log_conc_lgm0,
 ):
+    """Calculate the MSE loss for a sample of halos
+    of the same mass but a variety of p50
+
+    Parameters
+    ----------
+    params : array of shape (n, )
+        n is the number of single-mass parameters, i.e., the length of the
+
+    """
     preds = _get_preds_singlemass(
         params,
         lgm,
@@ -71,6 +79,7 @@ def _mse_loss_multimass(
 
 @jjit
 def _global_loss_func(params, data):
+    """Mean square error loss function"""
     (
         grid_data,
         lgmhalo_targets,
@@ -90,5 +99,6 @@ def _global_loss_func(params, data):
 
 @jjit
 def _mse(target, pred):
+    """Mean square error loss function"""
     diff = pred - target
     return jnp.mean(jnp.abs(diff * diff))
