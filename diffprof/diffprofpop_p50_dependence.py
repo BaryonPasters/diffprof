@@ -10,12 +10,22 @@ from .nfw_evolution import lgc_vs_lgt
 
 
 @jjit
-def parse_all_params(params_p50):
-    mean_u_be, lg_std_u_be = params_p50[:2]
-    mean_lgtc_params = params_p50[2:6]
-    mean_bl_params = params_p50[6:10]
-    cov_lgtc_bl_params = params_p50[10:13]
-    prev_fixed_params = params_p50[13:]
+def parse_all_params(singlemass_dpp_params):
+    """Parse the array of single-mass parameters into the separate sub-arrays
+    that define the mean and covariance of the 2-d Gaussian of {lgtc, beta_late}
+    and the 1-d Gaussian of {beta_early}
+
+    Parameters
+    ----------
+    singlemass_dpp_params : array of shape (n_singlemass, )
+        Array controlling the p50%-dependence of c(t) for halos of the same mass
+
+    """
+    mean_u_be, lg_std_u_be = singlemass_dpp_params[:2]
+    mean_lgtc_params = singlemass_dpp_params[2:6]
+    mean_bl_params = singlemass_dpp_params[6:10]
+    cov_lgtc_bl_params = singlemass_dpp_params[10:13]
+    prev_fixed_params = singlemass_dpp_params[13:]
     be_params = mean_u_be, lg_std_u_be
     return (
         be_params,
@@ -82,8 +92,31 @@ def u_lgtc_bl_pdf_weights_pop(u_lgtc_bl, mean_u_lgtc, mean_u_bl, cov):
 
 
 @jjit
-def get_means_and_covs(p50_arr, conc_k, params_p50):
-    _res = parse_all_params(params_p50)
+def get_means_and_covs(p50_arr, conc_k, singlemass_dpp_params):
+    """
+    Parameters
+    ----------
+    p50_arr : array of shape (n_p50, )
+
+    conc_k : float
+
+    singlemass_dpp_params : array of shape (n_singlemass, )
+        Array controlling the p50%-dependence of c(t) for halos of the same mass
+
+    Returns
+    -------
+    mean_u_be : array of shape (n_p50, )
+
+    std_u_be : array of shape (n_p50, )
+
+    mean_u_lgtc : array of shape (n_p50, )
+
+    mean_u_bl : array of shape (n_p50, )
+
+    cov_u_lgtc_bl : array of shape (n_p50, 2, 2)
+
+    """
+    _res = parse_all_params(singlemass_dpp_params)
     (
         be_params,
         mean_lgtc_params,
@@ -104,8 +137,10 @@ def get_means_and_covs(p50_arr, conc_k, params_p50):
 
 
 @jjit
-def get_pdf_weights_on_grid(p50_arr, u_be_grid, u_lgtc_bl_grid, conc_k, params_p50):
-    _res = get_means_and_covs(p50_arr, conc_k, params_p50)
+def get_pdf_weights_on_grid(
+    p50_arr, u_be_grid, u_lgtc_bl_grid, conc_k, singlemass_dpp_params
+):
+    _res = get_means_and_covs(p50_arr, conc_k, singlemass_dpp_params)
     mean_u_be, std_u_be, mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl = _res
     u_be_weights = u_be_pdf_weights_pop(u_be_grid, mean_u_be, std_u_be)
     u_lgtc_bl_weights = u_lgtc_bl_pdf_weights_pop(

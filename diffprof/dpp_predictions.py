@@ -11,12 +11,38 @@ from .diffprofpop import get_singlemass_params_p50
 
 @jjit
 def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid):
+    """Calculate the DiffprofPop predictions for halos at fixed mass
+
+    Parameters
+    ----------
+    params : array of shape (n, )
+        Array storing all parameters of DiffprofPop
+
+    lgm : float
+
+    tarr : array of shape (n_t, )
+
+    p50_arr : array of shape (n_p50, )
+
+    u_be_grid : array of shape (n_be, )
+
+    u_lgtc_bl_grid : array of shape (n_lgtc, n_bl)
+
+    Returns
+    -------
+    preds : collection of single-mass predictions of DiffprofPop
+        Return value is calculated by get_predictions_from_singlemass_params_p50
+
+        1. avg_log_conc_p50
+        2. avg_log_conc_lgm0
+        3. std_log_conc_lgm0
+        4. std_log_conc_p50
+
+    """
     singlemass_params_p50 = get_singlemass_params_p50(lgm, *params)
     return get_predictions_from_singlemass_params_p50(
         singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
     )
-    # avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0 = _res
-    # return avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0
 
 
 def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):
@@ -31,8 +57,6 @@ def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):
 def get_predictions_from_singlemass_params_p50(
     singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
 ):
-    # NEED TO ADD THE SCATTER AT EACH P50
-
     _res = get_pdf_weights_on_grid(
         p50_arr, u_be_grid, u_lgtc_bl_grid, CONC_K, singlemass_params_p50
     )

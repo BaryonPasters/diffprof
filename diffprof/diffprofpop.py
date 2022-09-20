@@ -258,6 +258,31 @@ def get_singlemass_params_p50(
     param_models_tp=DEFAULT_PARAMS["param_models_tp"],
     param_models_k=DEFAULT_PARAMS["param_models_k"],
 ):
+    """As a function of the input halo mass, calculate the parameter array that controls
+    how halo concentration evolves as a function of p50%.
+
+    Parameters
+    ----------
+    lgm0 : float
+        Base-10 log of halo mass
+
+    **kwargs : DiffprofPop parameters
+        All parameters of the dictionary bpl_dpp.DEFAULT_PARAMS are accepted
+        as optional keyword arguments
+
+    Returns
+    -------
+    singlemass_dpp_params : array of shape (n_singlemass, )
+        Array controlling the p50%-dependence of c(t) for halos of the same mass
+
+    Notes
+    -----
+    The returned singlemass_dpp_params array is passed as input
+    to the diffprofpop_p50_dependence.get_means_and_covs function,
+    which then returns the mean and covariance of the Gaussians
+    used by DiffprofPop to generate c(t) trajectories for halos of a single mass
+
+    """
     mean_u_be = get_mean_u_be(
         lgm0, param_models_tp, param_models_k, mean_u_be_ylo, mean_u_be_yhi
     )
@@ -367,4 +392,5 @@ def get_singlemass_params_p50(
         chol_lgtc_bl_k,
     )
 
-    return jnp.array(singlemass_dpp_params)
+    singlemass_dpp_params = jnp.array(singlemass_dpp_params)
+    return singlemass_dpp_params
