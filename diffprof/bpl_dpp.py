@@ -1,4 +1,5 @@
-"""DiffprofPop model as a function of mass and p50"""
+"""This module defines the dictionaries that store the best-fitting parameters of the
+DiffprofPop model as a function of mass and p50"""
 from collections import OrderedDict
 from .nfw_evolution import DEFAULT_CONC_PARAMS
 
