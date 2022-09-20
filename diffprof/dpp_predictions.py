@@ -15,8 +15,6 @@ def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
     return get_predictions_from_singlemass_params_p50(
         singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
     )
-    # avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0 = _res
-    # return avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0
 
 
 def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):
@@ -31,8 +29,6 @@ def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):
 def get_predictions_from_singlemass_params_p50(
     singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
 ):
-    # NEED TO ADD THE SCATTER AT EACH P50
-
     _res = get_pdf_weights_on_grid(
         p50_arr, u_be_grid, u_lgtc_bl_grid, CONC_K, singlemass_params_p50
     )
