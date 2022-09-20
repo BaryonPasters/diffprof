@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from .diffconc_target_data_model import approximate_lgconc_vs_lgm_p50
 from .diffconc_target_data_model import PARAMS as target_data_model_params_mean_lgconc
 
