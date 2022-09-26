@@ -1,6 +1,11 @@
 """This module implements the approximate_lgconc_vs_lgm_p50 function,
 which is the component of the target data model that provides an approximation
 to <log10(c(t)) | M0, p50>
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_target_data_model.ipynb
+    - diffprof/notebooks/validate_target_data_model.ipynb
+
 """
 from collections import OrderedDict
 from jax import numpy as jnp

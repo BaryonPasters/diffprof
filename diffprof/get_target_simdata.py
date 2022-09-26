@@ -1,4 +1,10 @@
-"""
+"""Module implements target_data_generator, which is used to supply an infinite stream
+of measurements of means and variances of c(t) of halos in BPL and MDPL2.
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_target_data_generator.ipynb
+    - diffprof/notebooks/validate_target_data_model.ipynb
+
 """
 import numpy as np
 from scipy.stats.mstats import trimmed_mean, trimmed_std
@@ -24,6 +30,67 @@ def target_data_generator(
     dlgmh=0.1,
     dp=0.05,
 ):
+    """Generator of an infinite stream of measurements of means and variances of c(t)
+
+    Parameters
+    ----------
+    logmp_bpl : ndarray of shape (n_h, )
+        Stores base-10 log of halo mass at z=0 for halos in BPL simulation
+
+    logmp_mdpl2 : ndarray of shape (n_h, )
+        Stores base-10 log of halo mass at z=0 for halos in MDPL2 simulation
+
+    lgconc_history_bpl : ndarray of shape (n_h, n_t)
+        Base-10 log of concentration history of halos in BPL simulation
+
+    lgconc_history_mdpl2 : ndarray of shape (n_h, n_t)
+        Base-10 log of concentration history of halos in MDPL2 simulation
+
+    p_tform_50_bpl : ndarray of shape (n_h, )
+        Prob(t_50% | M0) of halos in the BPL simulation
+
+    p_tform_50_mdpl2 : ndarray of shape (n_h, )
+        Prob(t_50% | M0) of halos in the MDPL2 simulation
+
+    n_mh_out : int
+        Number of halo mass bins for which measurements should be made
+
+    n_p_out : int
+        Number of p50% bins for which measurements should be made
+
+    p50_min : float, optional
+        Minimum value of p50% in the measurements
+
+    p50_max : float, optional
+        Maximum value of p50% in the measurements
+
+    dlgmh : float, optional
+        logarithmic width of the halo mass bin used to define the measurement
+
+    dp : float, optional
+        width of the p50% bin used to define the measurement
+
+    Returns
+    -------
+    lgmhalo_targets : ndarray of shape (n_mh_out, )
+
+    p50_targets : ndarray of shape (n_p_out, )
+
+    lgc_mean_targets_lgm0 : ndarray of shape (n_mh_out, n_t)
+        Array stores <log10(c(t)) | M0> for each value of M0 in lgmhalo_targets
+
+    lgc_std_targets_lgm0 : ndarray of shape (n_mh_out, n_t)
+        Array stores sigma(log10(c(t)) | M0) for each value of M0 in lgmhalo_targets
+
+    lgc_mean_targets_lgm0_p50 : ndarray of shape (n_mh_out, n_p_out, n_t)
+        Array stores <log10(c(t)) | M0, p50%> for each value of M0 in lgmhalo_targets
+        and each value of p50% in p50_targets
+
+    lgc_std_targets_lgm0_p50 : ndarray of shape (n_mh_out, n_p_out, n_t)
+        Array stores sigma(log10(c(t)) | M0) for each value of M0 in lgmhalo_targets
+        and each value of p50% in p50_targets
+
+    """
     while True:
         lgmhalo_targets = np.sort(
             latin_hypercube(lgmh_min, lgmh_max, 1, n_mh_out).flatten()
