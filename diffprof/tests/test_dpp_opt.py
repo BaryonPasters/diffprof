@@ -2,7 +2,8 @@
 """
 import pytest
 import numpy as np
-from ..dpp_opt import get_loss_data, LGMH_MIN, LGMH_MAX, P50_MIN, P50_MAX
+from ..dpp_opt import get_loss_data, get_u_param_grids
+from ..dpp_opt import LGMH_MIN, LGMH_MAX, P50_MIN, P50_MAX
 from ..target_data_model import target_data_model_params_mean_lgconc
 from ..target_data_model import target_data_model_params_std_lgconc
 from ..target_data_model import target_data_model_params_std_lgconc_p50
@@ -62,3 +63,10 @@ def test_get_loss_data():
     std_msg = "All returned variances should be strictly positive"
     assert np.all(target_log_conc_std_lgm0 > 0), std_msg
     assert np.all(target_log_conc_std_p50_lgm0 > 0), std_msg
+
+
+def test_get_u_param_grids():
+    n_grid = 15
+    u_be_grid, u_lgtc_bl_grid = get_u_param_grids(n_grid)
+    assert u_be_grid.shape == (n_grid,)
+    assert u_lgtc_bl_grid.shape == (n_grid, 2)

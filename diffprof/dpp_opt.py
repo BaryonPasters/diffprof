@@ -4,12 +4,14 @@ to optimize DiffprofPop.
 The get_loss_data function is intended to be used in concert with the various
 loss functions implemented in the dpp_loss_funcs.py module.
 """
+import numpy as np
 from jax import numpy as jnp
 from .latin_hypercube import latin_hypercube
-from .conc_pop_model import get_u_param_grids
 from .fitting_helpers.fit_target_data_model import predict_targets
 from .fitting_helpers.fit_target_std_data_model import predict_std_targets
 from .target_data_model.diffconc_std_p50_model import _scatter_vs_p50_and_lgmhalo
+from .nfw_evolution import CONC_PARAM_BOUNDS
+from .nfw_evolution import _get_u_beta_early, _get_u_beta_late, _get_u_lgtc
 
 LGMH_MIN = 11.4
 LGMH_MAX = 14.5
@@ -104,3 +106,37 @@ def get_loss_data(
         target_log_conc_std_p50_lgm0,
     )
     return p50_targets, lgmhalo_targets, tarr, u_be_grid, u_lgtc_bl_grid, targets
+
+
+def get_u_param_grids(n_grid, seed=None):
+    rng = np.random.RandomState(seed)
+    seeds = rng.randint(0, 5_000_000, 3)
+
+    be_grid = get_be_grid(n_grid, seed=seeds[0])
+    u_be_grid = _get_u_beta_early(be_grid)
+
+    u_lgtc_grid = get_u_lgtc_grid(n_grid, seed=seeds[1])
+
+    bl_mins, bl_maxs = [be_grid], float(CONC_PARAM_BOUNDS["conc_beta_late"][1])
+    n_dim = 1
+    bl_grid = latin_hypercube(bl_mins, bl_maxs, n_dim, n_grid, seed=seeds[2]).flatten()
+    u_bl_grid = _get_u_beta_late(bl_grid, be_grid)
+
+    u_lgtc_bl_grid = np.vstack((u_lgtc_grid, u_bl_grid)).T
+
+    return u_be_grid, u_lgtc_bl_grid
+
+
+def get_be_grid(n_grid, seed=None):
+    param_bounds = [float(x) for x in CONC_PARAM_BOUNDS["conc_beta_early"]]
+    n_dim = 1
+    be_grid = latin_hypercube(*param_bounds, n_dim, n_grid, seed=seed).flatten()
+    return be_grid
+
+
+def get_u_lgtc_grid(n_grid, seed=None):
+    lgtc_param_bounds = [float(x) for x in CONC_PARAM_BOUNDS["conc_lgtc"]]
+    n_dim = 1
+    lgtc_grid = latin_hypercube(*lgtc_param_bounds, n_dim, n_grid, seed=seed).flatten()
+    u_lgtc_grid = _get_u_lgtc(lgtc_grid)
+    return u_lgtc_grid
