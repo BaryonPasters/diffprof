@@ -7,6 +7,8 @@ from ..dpp_opt import LGMH_MIN, LGMH_MAX, P50_MIN, P50_MAX
 from ..target_data_model import target_data_model_params_mean_lgconc
 from ..target_data_model import target_data_model_params_std_lgconc
 from ..target_data_model import target_data_model_params_std_lgconc_p50
+from ..dpp_predictions import get_param_grids_from_u_param_grids
+from ..nfw_evolution import CONC_PARAM_BOUNDS
 
 
 def _get_default_loss_data():
@@ -67,6 +69,23 @@ def test_get_loss_data():
 
 def test_get_u_param_grids():
     n_grid = 15
-    u_be_grid, u_lgtc_bl_grid = get_u_param_grids(n_grid)
+    u_param_grids = get_u_param_grids(n_grid)
+    u_be_grid, u_lgtc_bl_grid = u_param_grids
     assert u_be_grid.shape == (n_grid,)
     assert u_lgtc_bl_grid.shape == (n_grid, 2)
+
+    param_grids = get_param_grids_from_u_param_grids(*u_param_grids)
+    be_grid, lgtc_bl_grid = param_grids
+
+    assert np.all(np.isfinite(be_grid))
+    assert np.all(np.isfinite(lgtc_bl_grid))
+
+    assert be_grid.shape == (n_grid,)
+    assert np.all(be_grid >= CONC_PARAM_BOUNDS["conc_beta_early"][0])
+    assert np.all(be_grid <= CONC_PARAM_BOUNDS["conc_beta_early"][1])
+
+    assert lgtc_bl_grid.shape == (n_grid, 2)
+    assert np.all(lgtc_bl_grid[:, 0] >= CONC_PARAM_BOUNDS["conc_lgtc"][0])
+    assert np.all(lgtc_bl_grid[:, 0] <= CONC_PARAM_BOUNDS["conc_lgtc"][1])
+    assert np.all(lgtc_bl_grid[:, 1] >= CONC_PARAM_BOUNDS["conc_beta_late"][0])
+    assert np.all(lgtc_bl_grid[:, 1] <= CONC_PARAM_BOUNDS["conc_beta_late"][1])
