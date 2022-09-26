@@ -1,4 +1,11 @@
-"""
+"""This module implements the approximate_lgconc_vs_lgm_p50 function,
+which is the component of the target data model that provides an approximation
+to <log10(c(t)) | M0, p50>
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_target_data_model.ipynb
+    - diffprof/notebooks/validate_target_data_model.ipynb
+
 """
 from collections import OrderedDict
 from jax import numpy as jnp
@@ -39,13 +46,33 @@ def approximate_lgconc_vs_lgm_p50(
     yhi_c1_a0,
     yhi_c1_a1,
 ):
+    """Target data model approximation to <log10(c(t)) | M0, p50>
+
+    Parameters
+    ----------
+    t : ndarray of shape (n_t, )
+
+    logmh : float
+
+    p50 : float
+
+    **params : sequence of 12 parameters
+        Default values stored in PARAMS dictionary at top of module
+
+    Returns
+    -------
+    lgconc : ndarray of shape (n_t, )
+        Returned array stores <log10(c(t)) | M0, p50>
+
+    """
     ylo_ylo, ylo_yhi = get_ylo_sigmoid_params(
         lgmh, ylo_ylo_w0, ylo_ylo_w1, ylo_yhi_v0, ylo_yhi_v1
     )
     yhi_c0, yhi_c1 = get_yhi_coeffs(lgmh, yhi_c0_b0, yhi_c0_b1, yhi_c1_a0, yhi_c1_a1)
-    ylo = _sigmoid(p50, x0_ylo, 10 ** lgk_ylo, ylo_ylo, ylo_yhi)
+    ylo = _sigmoid(p50, x0_ylo, 10**lgk_ylo, ylo_ylo, ylo_yhi)
     yhi = yhi_c0 + yhi_c1 * p50
-    return _sigmoid(t, x0_data, 10 ** lgk_data, ylo, yhi)
+    lgconc = _sigmoid(t, x0_data, 10**lgk_data, ylo, yhi)
+    return lgconc
 
 
 @jjit

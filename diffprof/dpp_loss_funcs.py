@@ -30,8 +30,30 @@ def _mse_loss_singlemass(
 
     Parameters
     ----------
-    params : array of shape (n, )
-        n is the number of single-mass parameters, i.e., the length of the
+    params : array of shape (n_dpp_params, )
+        Array storing all parameters of DiffprofPop
+
+    grid_data : 4-element tuple of abscissa defining the target data
+        - p50_arr : ndarray of shape (n_p, )
+        - tarr : ndarray of shape (n_t, )
+        - u_be_grid : ndarray of shape (n_grid, )
+        - u_lgtc_bl_grid : ndarray of shape (n_grid, 2)
+
+    lgm : float
+
+    target_avg_log_conc_p50 : ndarray of shape (n_p, n_t)
+        Array stores <log10(c(t)) | M0, p50%>
+
+    target_avg_log_conc_lgm0 : ndarray of shape (n_t, )
+        Array stores <log10(c(t)) | M0>
+
+    target_std_log_conc_lgm0 : ndarray of shape (n_t, )
+        Array stores sigma(log10(c(t)) | M0)
+
+    Returns
+    -------
+    loss : float
+        sum of MSE of the three input targets
 
     """
     preds = _get_preds_singlemass(
@@ -60,17 +82,48 @@ _mse_loss_multimass_vmap = jjit(
 def _mse_loss_multimass(
     params,
     grid_data,
-    lgm,
-    target_avg_log_conc_p50,
+    lgmh_arr,
+    target_avg_log_conc_p50_lgm0,
     target_avg_log_conc_lgm0,
     target_std_log_conc_lgm0,
 ):
+    """Calculate the MSE loss for a sample of halos
+    of the same mass but a variety of p50
+
+    Parameters
+    ----------
+    params : array of shape (n_dpp_params, )
+        Array storing all parameters of DiffprofPop
+
+    grid_data : 4-element tuple of abscissa defining the target data
+        - p50_arr : ndarray of shape (n_p, )
+        - tarr : ndarray of shape (n_t, )
+        - u_be_grid : ndarray of shape (n_grid, )
+        - u_lgtc_bl_grid : ndarray of shape (n_grid, 2)
+
+    lgmarr : ndarray of shape (n_mh, )
+
+    target_avg_log_conc_p50_lgm0 : ndarray of shape (n_mh, n_p, n_t)
+        Array stores <log10(c(t)) | M0, p50%>
+
+    target_avg_log_conc_lgm0 : ndarray of shape (n_mh, n_t)
+        Array stores <log10(c(t)) | M0>
+
+    target_std_log_conc_lgm0 : ndarray of shape (n_mh, n_t)
+        Array stores sigma(log10(c(t)) | M0)
+
+    Returns
+    -------
+    loss : float
+        sum of MSE of the three input targets
+
+    """
     return jnp.sum(
         _mse_loss_multimass_vmap(
             params,
             grid_data,
-            lgm,
-            target_avg_log_conc_p50,
+            lgmh_arr,
+            target_avg_log_conc_p50_lgm0,
             target_avg_log_conc_lgm0,
             target_std_log_conc_lgm0,
         )
@@ -79,7 +132,14 @@ def _mse_loss_multimass(
 
 @jjit
 def _global_loss_func(params, data):
-    """Mean square error loss function"""
+    """Mean square error loss function.
+
+    This function is essentially a wrapper around the _mse_loss_multimass function.
+    The _mse_loss_multimass function accepts an argument params followed by a sequence
+    of additional arguments storing the target data.
+    The _global_loss_func function only accepts a second argument, data,
+    in which these additional arguments are all packed into a tuple.
+    """
     (
         grid_data,
         lgmhalo_targets,

@@ -1,4 +1,4 @@
-"""
+"""This module implements the _get_preds_singlemass function.
 """
 from jax import jit as jjit
 from jax import numpy as jnp
@@ -15,7 +15,7 @@ def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
 
     Parameters
     ----------
-    params : array of shape (n, )
+    params : array of shape (n_dpp_params, )
         Array storing all parameters of DiffprofPop
 
     lgm : float
@@ -30,7 +30,7 @@ def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
 
     Returns
     -------
-    preds : collection of single-mass predictions of DiffprofPop
+    preds_singlemass : collection of single-mass predictions of DiffprofPop
         Return value is calculated by get_predictions_from_singlemass_params_p50
 
         1. avg_log_conc_p50
@@ -40,9 +40,10 @@ def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
 
     """
     singlemass_params_p50 = get_singlemass_params_p50(lgm, *params)
-    return get_predictions_from_singlemass_params_p50(
+    preds_singlemass = get_predictions_from_singlemass_params_p50(
         singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
     )
+    return preds_singlemass
 
 
 def get_param_grids_from_u_param_grids(u_be_grid, u_lgtc_bl_grid):

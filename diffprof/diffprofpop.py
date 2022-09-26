@@ -1,4 +1,22 @@
-"""
+"""Module implements the get_singlemass_params_p50 function that defines the
+full multi-dimensional dependence of the DiffprofPop model.
+
+The DiffprofPop model specifies how the PDF of {beta_early, beta_late, lgtc}
+depend simultaneously upon M0 and p50%. The get_singlemass_params_p50 function
+accepts a parameter array, dpp_params. The parameter array dpp_params
+fully determines the behavior of DiffprofPop as a function of both M0 and p50%.
+
+Along with the input parameter array dpp_params,
+The get_singlemass_params_p50 function accepts a single scalar value or halo mass, lgm0,
+and returns the parameter array singlemass_dpp_params.
+The parameter array singlemass_dpp_params is in turn passed to the function
+diffprofpop_p50_dependence.get_means_and_covs.
+The get_means_and_covs function returns the means and (co)variances
+of the Gaussians specifying the PDF of {beta_early, beta_late, lgtc}
+for halos of mass lgm0.
+
+The best-fit values of dpp_params is stored in the bpl_dpp.py module.
+
 """
 from collections import OrderedDict
 from jax import jit as jjit
@@ -258,8 +276,9 @@ def get_singlemass_params_p50(
     param_models_tp=DEFAULT_PARAMS["param_models_tp"],
     param_models_k=DEFAULT_PARAMS["param_models_k"],
 ):
-    """As a function of the input halo mass, calculate the parameter array that controls
-    how halo concentration evolves as a function of p50%.
+    """As a function of the input halo mass, calculate the parameter array,
+    singlemass_dpp_params, that controls how halo concentration evolves
+    as a function of p50% for a population of halos of the same mass.
 
     Parameters
     ----------

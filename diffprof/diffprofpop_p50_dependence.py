@@ -1,4 +1,13 @@
-"""
+"""Module implements the get_means_and_covs function used by DiffprofPop to generate
+samples of {beta_early, beta_late, lgtc}.
+
+The get_means_and_covs function accepts a parameter array singlemass_params_p50.
+This parameter array controls the PDF of {beta_early, beta_late, lgtc} for a
+population of halos of the same mass, but different values of p50%.
+DiffpropPop is implemented such that beta_early is distributed as a 1-d Gaussian,
+and {beta_late, lgtc} are distributed as a 2-d Gaussian.
+The get_means_and_covs function returns the means and (co)variances of these Gaussians.
+
 """
 from jax import vmap
 from jax import jit as jjit
@@ -17,8 +26,17 @@ def parse_all_params(singlemass_dpp_params):
 
     Parameters
     ----------
-    singlemass_dpp_params : array of shape (n_singlemass, )
-        Array controlling the p50%-dependence of c(t) for halos of the same mass
+    dpp_guassian_params : sequence of parameter arrays
+
+        be_params : params controlling the average value of beta_early
+
+        mean_lgtc_params : params controlling the average value of lgtc
+
+        mean_bl_params : params controlling the average value of beta_late
+
+        cov_lgtc_bl_params : params controlling the covariance of {lgtc, beta_late}
+
+        prev_fixed_params : parameters held fixed in an early version of the analysis
 
     """
     mean_u_be, lg_std_u_be = singlemass_dpp_params[:2]
@@ -27,13 +45,14 @@ def parse_all_params(singlemass_dpp_params):
     cov_lgtc_bl_params = singlemass_dpp_params[10:13]
     prev_fixed_params = singlemass_dpp_params[13:]
     be_params = mean_u_be, lg_std_u_be
-    return (
+    dpp_guassian_params = (
         be_params,
         mean_lgtc_params,
         mean_bl_params,
         cov_lgtc_bl_params,
         prev_fixed_params,
     )
+    return dpp_guassian_params
 
 
 _a = (None, 0, None, 0, 0)
@@ -92,16 +111,19 @@ def u_lgtc_bl_pdf_weights_pop(u_lgtc_bl, mean_u_lgtc, mean_u_bl, cov):
 
 
 @jjit
-def get_means_and_covs(p50_arr, conc_k, singlemass_dpp_params):
-    """
+def get_means_and_covs(p50_arr, conc_k, singlemass_params_p50):
+    """Calculate the mean and covariance of the Gaussians governing the
+    behavior of the PDFs of beta_early, beta_late, and lgtc
+
     Parameters
     ----------
     p50_arr : array of shape (n_p50, )
 
     conc_k : float
 
-    singlemass_dpp_params : array of shape (n_singlemass, )
+    singlemass_params_p50 : array of shape (n_singlemass, )
         Array controlling the p50%-dependence of c(t) for halos of the same mass
+        This is the parameter array returned by diffprofpop.get_singlemass_params_p50
 
     Returns
     -------
@@ -116,7 +138,7 @@ def get_means_and_covs(p50_arr, conc_k, singlemass_dpp_params):
     cov_u_lgtc_bl : array of shape (n_p50, 2, 2)
 
     """
-    _res = parse_all_params(singlemass_dpp_params)
+    _res = parse_all_params(singlemass_params_p50)
     (
         be_params,
         mean_lgtc_params,
