@@ -2,6 +2,7 @@
 """
 import pytest
 import numpy as np
+from jax import random as jran
 from ..dpp_opt import get_loss_data, get_u_param_grids
 from ..dpp_opt import LGMH_MIN, LGMH_MAX, P50_MIN, P50_MAX
 from ..target_data_model import target_data_model_params_mean_lgconc
@@ -17,7 +18,11 @@ def _get_default_loss_data():
 
     n_grid = 50
     n_mh, n_p = 30, 20
+
+    ran_key = jran.PRNGKey(0)
+
     loss_data_args = (
+        ran_key,
         np.array(list(target_data_model_params_mean_lgconc.values())),
         np.array(list(target_data_model_params_std_lgconc.values())),
         np.array(list(target_data_model_params_std_lgconc_p50.values())),
@@ -69,7 +74,8 @@ def test_get_loss_data():
 
 def test_get_u_param_grids():
     n_grid = 15
-    u_param_grids = get_u_param_grids(n_grid)
+    ran_key = jran.PRNGKey(0)
+    u_param_grids = get_u_param_grids(ran_key, n_grid)
     u_be_grid, u_lgtc_bl_grid = u_param_grids
     assert u_be_grid.shape == (n_grid,)
     assert u_lgtc_bl_grid.shape == (n_grid, 2)
