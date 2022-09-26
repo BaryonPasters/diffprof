@@ -7,19 +7,24 @@ from .fitting_helpers.fit_target_data_model import predict_targets
 from .fitting_helpers.fit_target_std_data_model import predict_std_targets
 from .target_data_model.diffconc_std_p50_model import _scatter_vs_p50_and_lgmhalo
 
+LGMH_MIN = 11.4
+LGMH_MAX = 14.5
+P50_MIN = 0.1
+P50_MAX = 0.9
+
 
 def get_loss_data(
     p_best_target_data_model,
     p_best_target_std_data_model,
     p_best_target_std_data_p50_model,
     tarr,
-    N_GRID,
-    N_MH,
-    N_P,
-    LGMH_MIN=11.4,
-    LGMH_MAX=14.5,
-    P50_MIN=0.1,
-    P50_MAX=0.9,
+    n_grid,
+    n_mh,
+    n_p,
+    lgmh_min=LGMH_MIN,
+    lgmh_max=LGMH_MAX,
+    p50_min=P50_MIN,
+    p50_max=P50_MAX,
 ):
     """Call the target data model to generate targets used to define the loss function
 
@@ -33,41 +38,41 @@ def get_loss_data(
 
     tarr : ndarray of shape (n_t, )
 
-    N_GRID : int
+    n_grid : int
         Number of points in the grid of individual diffprof parameters
 
-    N_MH : int
+    n_mh : int
         Number of target halo masses in the target data
 
-    N_P : int
+    n_p : int
         Number of p50% values in the target data
 
     Returns
     -------
-    p50_targets : ndarray of shape (N_P, )
+    p50_targets : ndarray of shape (n_p, )
 
-    lgmhalo_targets : ndarray of shape (N_P, )
+    lgmhalo_targets : ndarray of shape (n_p, )
 
-    tarr : ndarray of shape (N_P, )
+    tarr : ndarray of shape (n_p, )
         Same as the input tarr
 
-    u_be_grid : ndarray of shape (N_GRID, )
+    u_be_grid : ndarray of shape (n_grid, )
 
-    u_lgtc_bl_grid : ndarray of shape (N_GRID, 2)
+    u_lgtc_bl_grid : ndarray of shape (n_grid, 2)
 
     targets : sequence of 4 arrays used as target data
-        - target_avg_log_conc_lgm0 : ndarray of shape (N_MH, N_T)
+        - target_avg_log_conc_lgm0 : ndarray of shape (n_mh, N_T)
 
-        - target_log_conc_std_lgm0 : ndarray of shape (N_MH, N_T)
+        - target_log_conc_std_lgm0 : ndarray of shape (n_mh, N_T)
 
-        - target_avg_log_conc_p50_lgm0 : ndarray of shape (N_MH, N_P, N_T)
+        - target_avg_log_conc_p50_lgm0 : ndarray of shape (n_mh, n_p, N_T)
 
-        - target_log_conc_std_p50_lgm0 : ndarray of shape (N_MH, N_P, N_T)
+        - target_log_conc_std_p50_lgm0 : ndarray of shape (n_mh, n_p, N_T)
 
     """
-    u_be_grid, u_lgtc_bl_grid = get_u_param_grids(N_GRID)
-    p50_targets = jnp.sort(latin_hypercube(P50_MIN, P50_MAX, 1, N_P).flatten())
-    lgmhalo_targets = jnp.sort(latin_hypercube(LGMH_MIN, LGMH_MAX, 1, N_MH).flatten())
+    u_be_grid, u_lgtc_bl_grid = get_u_param_grids(n_grid)
+    p50_targets = jnp.sort(latin_hypercube(p50_min, p50_max, 1, n_p).flatten())
+    lgmhalo_targets = jnp.sort(latin_hypercube(lgmh_min, lgmh_max, 1, n_mh).flatten())
 
     target_avg_log_conc_p50_lgm0 = predict_targets(
         p_best_target_data_model, tarr, lgmhalo_targets, p50_targets
