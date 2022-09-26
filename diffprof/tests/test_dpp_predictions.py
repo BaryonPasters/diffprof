@@ -9,6 +9,11 @@ from ..diffprofpop import get_singlemass_params_p50
 
 
 def _check_preds_singlemass(preds_singlemass, n_p, n_t):
+    """Enforce the following requirements on the single-mass predictions:
+    1. Each returned prediction has the correct shape
+    2. Each returned prediction has no NaNs
+    3. The returned predictions for the variances are all strictly positive
+    """
     avg_log_conc_p50, avg_log_conc_lgm0 = preds_singlemass[0:2]
     std_log_conc_lgm0, std_log_conc_p50 = preds_singlemass[2:]
 

@@ -1,4 +1,4 @@
-"""
+"""This module implements the _get_preds_singlemass function.
 """
 from jax import jit as jjit
 from jax import numpy as jnp
