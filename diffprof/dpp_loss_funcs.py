@@ -30,8 +30,8 @@ def _mse_loss_singlemass(
 
     Parameters
     ----------
-    params : array of shape (n, )
-        n is the number of single-mass parameters, i.e., the length of the
+    params : array of shape (n_dpp_params, )
+        Array storing all parameters of DiffprofPop
 
     """
     preds = _get_preds_singlemass(
@@ -60,7 +60,7 @@ _mse_loss_multimass_vmap = jjit(
 def _mse_loss_multimass(
     params,
     grid_data,
-    lgm,
+    lgmh_arr,
     target_avg_log_conc_p50,
     target_avg_log_conc_lgm0,
     target_std_log_conc_lgm0,
@@ -69,7 +69,7 @@ def _mse_loss_multimass(
         _mse_loss_multimass_vmap(
             params,
             grid_data,
-            lgm,
+            lgmh_arr,
             target_avg_log_conc_p50,
             target_avg_log_conc_lgm0,
             target_std_log_conc_lgm0,

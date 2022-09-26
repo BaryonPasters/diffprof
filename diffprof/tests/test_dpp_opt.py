@@ -35,6 +35,7 @@ def _get_default_loss_data():
 def test_get_loss_data():
     loss_data, n_grid, n_mh, n_p, n_t, tarr_in = _get_default_loss_data()
     p50_targets, lgmhalo_targets, tarr, u_be_grid, u_lgtc_bl_grid, targets = loss_data
+
     assert p50_targets.shape == (n_p,)
     assert lgmhalo_targets.shape == (n_mh,)
     assert tarr.shape == (n_t,)

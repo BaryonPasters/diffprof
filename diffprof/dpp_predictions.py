@@ -15,7 +15,7 @@ def _get_preds_singlemass(params, lgm, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
 
     Parameters
     ----------
-    params : array of shape (n, )
+    params : array of shape (n_dpp_params, )
         Array storing all parameters of DiffprofPop
 
     lgm : float
