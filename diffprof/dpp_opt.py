@@ -1,4 +1,8 @@
-"""
+"""This module implements the get_loss_data function used to generate target data
+to optimize DiffprofPop.
+
+The get_loss_data function is intended to be used in concert with the various
+loss functions implemented in the dpp_loss_funcs.py module.
 """
 from jax import numpy as jnp
 from .latin_hypercube import latin_hypercube
