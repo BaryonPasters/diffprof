@@ -1,5 +1,13 @@
 """Module implements the get_means_and_covs function used by DiffprofPop to generate
-samples of {beta_early, beta_late, lgtc}
+samples of {beta_early, beta_late, lgtc}.
+
+The get_means_and_covs function accepts a parameter array singlemass_params_p50.
+This parameter array controls the PDF of {beta_early, beta_late, lgtc} for a
+population of halos of the same mass, but different values of p50%.
+DiffpropPop is implemented such that beta_early is distributed as a 1-d Gaussian,
+and {beta_late, lgtc} are distributed as a 2-d Gaussian.
+The get_means_and_covs function returns the means and (co)variances of these Gaussians.
+
 """
 from jax import vmap
 from jax import jit as jjit
