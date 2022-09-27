@@ -1,4 +1,10 @@
-"""
+"""Module implements the mc_halo_population_singlemass function used to generate
+a Monte Carlo realization of the halo population.
+
+The mc_halo_population_singlemass function first generates a distribution of
+unbounded parameters {u_be, u_lgtc, u_bl}, then transforms to the space of bounded
+parameters, then finally calculated the c(t) trajectories.
+
 """
 from jax import numpy as jnp
 from jax import jit as jjit
@@ -34,24 +40,30 @@ def mc_halo_population_singlemass(ran_key, tarr, p50, singlemass_dpp_params):
     n_sample = p50.shape[0]
     lgtarr = jnp.log10(tarr)
 
+    # Calculate the means and covariances defining the population
     _res = get_means_and_covs(p50, CONC_K, singlemass_dpp_params)
     mean_u_be, std_u_be, mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl = _res
 
     be_key, lgtc_bl_key = jran.split(ran_key, 2)
 
+    # Draw from a 1-d Gaussian to get a sample of u_be
     x = jran.normal(be_key, shape=(n_sample,))
     u_be_sample = mean_u_be + std_u_be * x
-    be_sample = _get_beta_early(u_be_sample)
 
+    # Draw from a 2-d Gaussian to get a sample of {u_lgtc, u_bl}
     mean_u_lgtc_bl = jnp.array([mean_u_lgtc, mean_u_bl]).T
-
     u_lgtc_bl_sample = jran.multivariate_normal(
         lgtc_bl_key, mean=mean_u_lgtc_bl, cov=cov_u_lgtc_bl
     )
     u_lgtc_sample = u_lgtc_bl_sample[:, 0]
     u_bl_sample = u_lgtc_bl_sample[:, 1]
+
+    # transform unbounded parameters to bounded
+    be_sample = _get_beta_early(u_be_sample)
     lgtc_sample = _get_lgtc(u_lgtc_sample)
     bl_sample = _get_beta_late(u_bl_sample, be_sample)
 
+    # Calculate the c(t) trajectories for the population of parameters
     lgc_sample = lgc_vs_lgt_pop(lgtarr, lgtc_sample, CONC_K, be_sample, bl_sample)
+
     return lgc_sample
