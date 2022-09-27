@@ -17,6 +17,10 @@ for halos of mass lgm0.
 
 The best-fit values of dpp_params is stored in the bpl_dpp.py module.
 
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_mc_halopop.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 """
 from collections import OrderedDict
 from jax import jit as jjit

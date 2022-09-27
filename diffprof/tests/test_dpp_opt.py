@@ -1,6 +1,5 @@
 """
 """
-import pytest
 import numpy as np
 from jax import random as jran
 from ..dpp_opt import get_loss_data, get_u_param_grids
@@ -39,8 +38,19 @@ def _get_default_loss_data():
     return loss_data, n_grid, n_mh, n_p, n_t, tarr_in
 
 
-@pytest.mark.xfail
 def test_get_loss_data():
+    """This test fails because the get_loss_data function actually returns the
+    _logarithm_ of the variance of halo concentration, not just the variance.
+    However, I suspect that DiffprofPop may have been optimized without first
+    exponentiating the returned arrays from get_loss_data function, and this could have
+    led to the incorrect optimization of the DiffprofPop parameters.
+
+    The get_loss_data function should be updated so that the variances are directly
+    returned, at which point this unit test will pass. However, this change should
+    only be made after first re-optimizing DiffprofPop according to the changed
+    get_loss_data function.
+
+    """
     loss_data, n_grid, n_mh, n_p, n_t, tarr_in = _get_default_loss_data()
     p50_targets, lgmhalo_targets, tarr, u_be_grid, u_lgtc_bl_grid, targets = loss_data
 

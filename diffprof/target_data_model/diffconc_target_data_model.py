@@ -5,6 +5,8 @@ to <log10(c(t)) | M0, p50>
 See the following notebooks for demonstrated usage:
     - diffprof/notebooks/demo_target_data_model.ipynb
     - diffprof/notebooks/validate_target_data_model.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 
 """
 from collections import OrderedDict

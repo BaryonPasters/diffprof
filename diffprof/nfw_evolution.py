@@ -1,4 +1,8 @@
 """Module stores the lgc_vs_lgt function providing a model for NFW conc vs. time
+
+See the following notebooks for demonstrated usage:
+    - demo_concentration_fitter.ipynb
+
 """
 from collections import OrderedDict
 from jax import jit as jjit
@@ -14,8 +18,8 @@ DEFAULT_CONC_PARAMS = OrderedDict(
 CONC_PARAM_BOUNDS = OrderedDict(
     conc_lgtc=(0.0, 1.5),
     conc_k=(0.25, 15.0),
-    conc_beta_early=(10 ** LGC_LOG10_CLIP, 0.75),
-    conc_beta_late=(10 ** LGC_LOG10_CLIP, 2.5),
+    conc_beta_early=(10**LGC_LOG10_CLIP, 0.75),
+    conc_beta_late=(10**LGC_LOG10_CLIP, 2.5),
 )
 
 
@@ -47,7 +51,7 @@ def lgc_vs_lgt(lgt, conc_lgtc, conc_k, conc_beta_early, conc_beta_late):
 
     """
     lgc = _sigmoid(lgt, conc_lgtc, conc_k, conc_beta_early, conc_beta_late)
-    return clipped_log10(10 ** lgc, LGC_LOG10_CLIP)
+    return clipped_log10(10**lgc, LGC_LOG10_CLIP)
 
 
 @jjit
@@ -153,5 +157,5 @@ def _inverse_sigmoid(y, x0, k, ymin, ymax):
 
 @jjit
 def clipped_log10(t, log10_clip):
-    k = 10.0 ** log10_clip
+    k = 10.0**log10_clip
     return (jnp.arcsinh(t / (2 * k)) + jnp.log(k)) / jnp.log(10.0)

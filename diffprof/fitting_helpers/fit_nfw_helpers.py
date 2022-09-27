@@ -1,4 +1,9 @@
-"""Helper functions for fitting NFW concentration histories of individual halos."""
+"""Helper functions for fitting NFW concentration histories of individual halos.
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_concentration_fitter.ipynb
+
+"""
 import warnings
 import numpy as np
 from jax import jit as jjit

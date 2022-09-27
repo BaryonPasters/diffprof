@@ -1,6 +1,5 @@
 """
 """
-import pytest
 from jax import random as jran
 import numpy as np
 from ..diffprofpop import get_singlemass_params_p50
@@ -8,8 +7,11 @@ from ..dpp_predictions import get_predictions_from_singlemass_params_p50
 from .test_dpp_predictions import _check_preds_singlemass
 
 
-@pytest.mark.xfail
 def test_get_singlemass_params_p50():
+    """This test enforces that the predictions of DiffprofPop are never NaN.
+    I do not know why this test fails, but we will need to resolve this in order to
+    optimize DiffprofPop.
+    """
     lgmarr = np.linspace(10, 16, 500)
     n_param_grid = 5
     n_p, n_t = 25, 55
