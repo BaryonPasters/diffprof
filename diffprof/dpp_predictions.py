@@ -1,4 +1,9 @@
 """This module implements the _get_preds_singlemass function.
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_mc_halopop.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 """
 from jax import jit as jjit
 from jax import numpy as jnp

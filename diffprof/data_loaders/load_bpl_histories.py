@@ -1,4 +1,8 @@
 """Module stores load_histories for loading the BPL simulation data
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_concentration_fitter.ipynb
+
 """
 import numpy as np
 import os

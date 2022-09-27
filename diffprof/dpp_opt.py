@@ -3,6 +3,11 @@ to optimize DiffprofPop.
 
 The get_loss_data function is intended to be used in concert with the various
 loss functions implemented in the dpp_loss_funcs.py module.
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_mc_halopop.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 """
 import numpy as np
 from jax import random as jran

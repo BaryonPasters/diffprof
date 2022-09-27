@@ -1,4 +1,12 @@
-"""
+"""This module implements the _scatter_vs_p50_and_lgmhalo function,
+which is the component of the target data model that provides an approximation
+to sigma(log10(c(t)) | M0, p50)
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_target_data_model.ipynb
+    - diffprof/notebooks/validate_target_data_model.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 """
 from jax import numpy as jnp
 from jax import jit as jjit
@@ -64,8 +72,8 @@ def _scatter_p50_width_vs_lgmhalo(
     p50_sig_width_lgylo,
     p50_sig_width_lgyhi,
 ):
-    p50_sig_width_ylo = 10 ** p50_sig_width_lgylo
-    p50_sig_width_yhi = 10 ** p50_sig_width_lgyhi
+    p50_sig_width_ylo = 10**p50_sig_width_lgylo
+    p50_sig_width_yhi = 10**p50_sig_width_lgyhi
     return _sigmoid(
         lgmh, p50_sig_width_x0, p50_sig_width_k, p50_sig_width_ylo, p50_sig_width_yhi
     )

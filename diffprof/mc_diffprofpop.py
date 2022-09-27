@@ -5,6 +5,9 @@ The mc_halo_population_singlemass function first generates a distribution of
 unbounded parameters {u_be, u_lgtc, u_bl}, then transforms to the space of bounded
 parameters, then finally calculated the c(t) trajectories.
 
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_mc_halopop.ipynb
+
 """
 from jax import numpy as jnp
 from jax import jit as jjit

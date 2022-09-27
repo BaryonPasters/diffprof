@@ -1,4 +1,8 @@
 """Module stores the lgc_vs_lgt function providing a model for NFW conc vs. time
+
+See the following notebooks for demonstrated usage:
+    - demo_concentration_fitter.ipynb
+
 """
 from collections import OrderedDict
 from jax import jit as jjit

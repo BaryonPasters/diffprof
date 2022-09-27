@@ -1,4 +1,12 @@
-"""
+"""This module implements the approx_std_lgconc_vs_lgm function,
+which is the component of the target data model that provides an approximation
+to sigma(log10(c(t)) | M0)
+
+See the following notebooks for demonstrated usage:
+    - diffprof/notebooks/demo_target_data_model.ipynb
+    - diffprof/notebooks/validate_target_data_model.ipynb
+    - diffprof/notebooks/check_diffprofpop.ipynb
+
 """
 from jax import numpy as jnp
 from jax import jit as jjit
@@ -40,7 +48,7 @@ def approx_std_lgconc_vs_lgm(
     yhi = get_std_model_yhi(
         lgmhalo, std_lgc_yhi_x0, std_lgc_yhi_lgk, std_lgc_yhi_ylo, std_lgc_yhi_yhi
     )
-    return _sigmoid(time, std_lgc_x0, 10 ** std_lgc_lgk, ylo, yhi)
+    return _sigmoid(time, std_lgc_x0, 10**std_lgc_lgk, ylo, yhi)
 
 
 @jjit
@@ -48,7 +56,7 @@ def get_std_model_ylo(
     lgmhalo, std_lgc_ylo_x0, std_lgc_ylo_lgk, std_lgc_ylo_ylo, std_lgc_ylo_yhi
 ):
     return _sigmoid(
-        lgmhalo, std_lgc_ylo_x0, 10 ** std_lgc_ylo_lgk, std_lgc_ylo_ylo, std_lgc_ylo_yhi
+        lgmhalo, std_lgc_ylo_x0, 10**std_lgc_ylo_lgk, std_lgc_ylo_ylo, std_lgc_ylo_yhi
     )
 
 
@@ -57,7 +65,7 @@ def get_std_model_yhi(
     lgmhalo, std_lgc_yhi_x0, std_lgc_yhi_lgk, std_lgc_yhi_ylo, std_lgc_yhi_yhi
 ):
     return _sigmoid(
-        lgmhalo, std_lgc_yhi_x0, 10 ** std_lgc_yhi_lgk, std_lgc_yhi_ylo, std_lgc_yhi_yhi
+        lgmhalo, std_lgc_yhi_x0, 10**std_lgc_yhi_lgk, std_lgc_yhi_ylo, std_lgc_yhi_yhi
     )
 
 

@@ -28,6 +28,8 @@ def test_mc_diffprofpop_has_correct_shape():
 def test_mc_diffprofpop_is_consistent_with_dpp_predictions():
     """This test enforces agreement between the Monte Carlo-based
     and differentiable predictions of DiffprofPop.
+
+    The demo_mc_halopop.ipynb notebook also demonstrates this test.
     """
     ran_key = jran.PRNGKey(0)
     n_t = 30
