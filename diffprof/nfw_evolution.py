@@ -11,6 +11,7 @@ from jax import numpy as jnp
 CONC_MIN = 2.0
 LGC_LOG10_CLIP = jnp.log10(jnp.log10(CONC_MIN))
 _X0, _K = 0.0, 0.1
+_K_lgtcbl = 0.01
 
 DEFAULT_CONC_PARAMS = OrderedDict(
     conc_lgtc=0.8, conc_k=5.0, conc_beta_early=0.35, conc_beta_late=1.2
@@ -101,12 +102,12 @@ def get_unbounded_params(params):
 
 @jjit
 def _get_lgtc(u_conc_lgtc):
-    return _sigmoid(u_conc_lgtc, _X0, _K, *CONC_PARAM_BOUNDS["conc_lgtc"])
+    return _sigmoid(u_conc_lgtc, _X0, _K_lgtcbl, *CONC_PARAM_BOUNDS["conc_lgtc"])
 
 
 @jjit
 def _get_u_lgtc(conc_lgtc):
-    return _inverse_sigmoid(conc_lgtc, _X0, _K, *CONC_PARAM_BOUNDS["conc_lgtc"])
+    return _inverse_sigmoid(conc_lgtc, _X0, _K_lgtcbl, *CONC_PARAM_BOUNDS["conc_lgtc"])
 
 
 @jjit
@@ -134,13 +135,13 @@ def _get_u_beta_early(conc_beta_early):
 @jjit
 def _get_beta_late(u_conc_beta_late, conc_beta_early):
     ylo, yhi = conc_beta_early, CONC_PARAM_BOUNDS["conc_beta_late"][1]
-    return _sigmoid(u_conc_beta_late, _X0, _K, ylo, yhi)
+    return _sigmoid(u_conc_beta_late, _X0, _K_lgtcbl, ylo, yhi)
 
 
 @jjit
 def _get_u_beta_late(conc_beta_late, conc_beta_early):
     ylo, yhi = conc_beta_early, CONC_PARAM_BOUNDS["conc_beta_late"][1]
-    return _inverse_sigmoid(conc_beta_late, _X0, _K, ylo, yhi)
+    return _inverse_sigmoid(conc_beta_late, _X0, _K_lgtcbl, ylo, yhi)
 
 
 @jjit
