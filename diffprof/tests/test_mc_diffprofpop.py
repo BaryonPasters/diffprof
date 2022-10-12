@@ -39,7 +39,7 @@ def test_mc_diffprofpop_is_consistent_with_dpp_predictions():
     singlemass_dpp_params = get_singlemass_params_p50(lgm0)
 
     p50_arr = np.linspace(0, 1, 50)
-    u_param_grids = get_u_param_grids(ran_key, 300)
+    u_param_grids = get_u_param_grids(ran_key, 3000)
     u_be_grid, u_lgtc_bl_grid = u_param_grids
     args = (singlemass_dpp_params, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
     dpp_preds = get_predictions_from_singlemass_params_p50(*args)
