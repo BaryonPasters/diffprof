@@ -23,7 +23,7 @@ def _mse_loss_singlemass(
     lgm,
     target_avg_log_conc_p50,
     target_avg_log_conc_lgm0,
-    target_std_log_conc_lgm0,
+    target_std_log_conc_p50,
 ):
     """Calculate the MSE loss for a sample of halos
     of the same mass but a variety of p50
@@ -47,8 +47,8 @@ def _mse_loss_singlemass(
     target_avg_log_conc_lgm0 : ndarray of shape (n_t, )
         Array stores <log10(c(t)) | M0>
 
-    target_std_log_conc_lgm0 : ndarray of shape (n_t, )
-        Array stores sigma(log10(c(t)) | M0)
+    target_std_log_conc_p50 : ndarray of shape (n_p, n_t)
+        Array stores sigma(log10(c(t)) | M0, p50%)
 
     Returns
     -------
@@ -64,12 +64,12 @@ def _mse_loss_singlemass(
         grid_data.u_be_grid,
         grid_data.u_lgtc_bl_grid,
     )
-    avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_p50, std_log_conc_lgm0 = preds
+    avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_lgm0, std_log_conc_p50 = preds
 
     a = _mse(avg_log_conc_p50, target_avg_log_conc_p50)
     b = _mse(avg_log_conc_lgm0, target_avg_log_conc_lgm0)
-    c = _mse(std_log_conc_lgm0, target_std_log_conc_lgm0)
-    # d = _mse(log_conc_std_p50, target_log_conc_std_p50)
+    c = _mse(std_log_conc_lgm0, target_std_log_conc_p50)
+
     return a + b + c
 
 
@@ -85,7 +85,7 @@ def _mse_loss_multimass(
     lgmh_arr,
     target_avg_log_conc_p50_lgm0,
     target_avg_log_conc_lgm0,
-    target_std_log_conc_lgm0,
+    target_std_log_conc_p50_lgm0,
 ):
     """Calculate the MSE loss for a sample of halos
     of the same mass but a variety of p50
@@ -125,7 +125,7 @@ def _mse_loss_multimass(
             lgmh_arr,
             target_avg_log_conc_p50_lgm0,
             target_avg_log_conc_lgm0,
-            target_std_log_conc_lgm0,
+            target_std_log_conc_p50_lgm0,
         )
     )
 
