@@ -70,7 +70,7 @@ def _mse_loss_singlemass(
     b = _mse(avg_log_conc_lgm0, target_avg_log_conc_lgm0)
     c = _mse(std_log_conc_lgm0, target_std_log_conc_p50)
 
-    return a + b + c
+    return a + b  # + c
 
 
 _mse_loss_multimass_vmap = jjit(
@@ -161,4 +161,4 @@ def _global_loss_func(params, data):
 def _mse(target, pred):
     """Mean square error loss function"""
     diff = pred - target
-    return jnp.mean(jnp.abs(diff * diff))
+    return jnp.mean(diff**2)
