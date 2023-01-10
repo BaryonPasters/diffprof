@@ -109,8 +109,8 @@ def _mse_loss_multimass(
     target_avg_log_conc_lgm0 : ndarray of shape (n_mh, n_t)
         Array stores <log10(c(t)) | M0>
 
-    target_std_log_conc_lgm0 : ndarray of shape (n_mh, n_t)
-        Array stores sigma(log10(c(t)) | M0)
+    target_std_log_conc_p50_lgm0 : ndarray of shape (n_mh, n_p, n_t)
+        Array stores sigma(log10(c(t)) | M0, p50%)
 
     Returns
     -------
@@ -145,7 +145,7 @@ def _global_loss_func(params, data):
         lgmhalo_targets,
         target_avg_log_conc_p50_lgm0,
         target_avg_log_conc_lgm0,
-        target_log_conc_std_lgm0,
+        target_log_conc_std_p50_lgm0,
     ) = data
     return _mse_loss_multimass(
         params,
@@ -153,7 +153,7 @@ def _global_loss_func(params, data):
         lgmhalo_targets,
         target_avg_log_conc_p50_lgm0,
         target_avg_log_conc_lgm0,
-        target_log_conc_std_lgm0,
+        target_log_conc_std_p50_lgm0,
     )
 
 
