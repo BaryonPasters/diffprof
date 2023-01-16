@@ -23,7 +23,7 @@ def _mse_loss_singlemass(
     lgm,
     target_avg_log_conc_p50,
     target_avg_log_conc_lgm0,
-    target_std_log_conc_p50,
+    target_std_log_conc_lgm0,
 ):
     """Calculate the MSE loss for a sample of halos
     of the same mass but a variety of p50
@@ -47,7 +47,7 @@ def _mse_loss_singlemass(
     target_avg_log_conc_lgm0 : ndarray of shape (n_t, )
         Array stores <log10(c(t)) | M0>
 
-    target_std_log_conc_p50 : ndarray of shape (n_p, n_t)
+    target_std_log_conc_lgm0 : ndarray of shape (n_t, )
         Array stores sigma(log10(c(t)) | M0, p50%)
 
     Returns
@@ -68,9 +68,9 @@ def _mse_loss_singlemass(
 
     a = _mse(avg_log_conc_p50, target_avg_log_conc_p50)
     b = _mse(avg_log_conc_lgm0, target_avg_log_conc_lgm0)
-    c = _mse(std_log_conc_lgm0, target_std_log_conc_p50)
+    c = _mse(std_log_conc_lgm0, target_std_log_conc_lgm0)
 
-    return a + b  # + c
+    return a + b + c
 
 
 _mse_loss_multimass_vmap = jjit(
