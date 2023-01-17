@@ -130,6 +130,8 @@ def calculate_halo_sample_target_data(
     lgc_mean_targets_lgm0 = []
     lgc_std_targets_lgm0 = []
 
+    std_trimming_factor = trimmed_std(np.random.normal(size=int(1e4)))
+
     for lgm_sample in lgmhalo_targets:
 
         conc_mean_targets_collector = []
@@ -147,14 +149,18 @@ def calculate_halo_sample_target_data(
         mmsk = np.abs(logmp_halos - lgm_sample) < lgmass_width
 
         lgc_mean_targets_lgm0.append(trimmed_mean(lgconc_history[mmsk], axis=0))
-        lgc_std_targets_lgm0.append(trimmed_std(lgconc_history[mmsk], axis=0))
+        lgc_std_targets_lgm0.append(
+            trimmed_std(lgconc_history[mmsk], axis=0) / std_trimming_factor
+        )
 
         for percentile in p50_targets:
             pmsk = np.abs(p_tform_50 - percentile) < percentile_width
 
             msk = mmsk & pmsk
             conc_mean_target = trimmed_mean(lgconc_history[msk], axis=0)
-            conc_std_target = trimmed_std(lgconc_history[msk], axis=0)
+            conc_std_target = (
+                trimmed_std(lgconc_history[msk], axis=0) / std_trimming_factor
+            )
 
             conc_mean_targets_collector.append(conc_mean_target)
             conc_std_targets_collector.append(conc_std_target)
