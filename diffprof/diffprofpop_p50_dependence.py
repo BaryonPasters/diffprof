@@ -335,7 +335,7 @@ def lgc_pop_vs_lgt_and_p50(lgt, p50_arr, be_grid, lgtc_bl_grid, conc_k):
 @jjit
 def get_conc_param_p50_pop_grids(p50_arr, be_grid, lgtc_bl_grid, conc_k):
     n_p50, n_grid = p50_arr.size, be_grid.size
-    be_p50_pop = jnp.tile(be_grid, n_p50).reshape((n_grid, n_p50))
+    be_p50_pop = jnp.repeat(be_grid, n_p50).reshape((n_grid, n_p50))
     lgtc_grid = lgtc_bl_grid[:, 0]
     bl_grid = lgtc_bl_grid[:, 1]
     lgtc_p50_pop = jnp.repeat(lgtc_grid, n_p50).reshape((n_grid, n_p50))
