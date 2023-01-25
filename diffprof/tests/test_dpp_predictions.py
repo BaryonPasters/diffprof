@@ -1,11 +1,14 @@
 """
 """
 import numpy as np
+from jax import random as jran
 from ..dpp_predictions import _get_preds_singlemass, get_param_grids_from_u_param_grids
 from ..dpp_predictions import get_predictions_from_singlemass_params_p50
 from ..bpl_dpp import DEFAULT_PARAMS
 from ..nfw_evolution import CONC_PARAM_BOUNDS
 from ..diffprofpop import get_singlemass_params_p50
+from ..multigrid_dpp_predictions import dpp_grid_generator
+from ..multigrid_dpp_predictions import get_multigrid_preds_from_singlemass_params_p50
 
 
 def _check_preds_singlemass(preds_singlemass, n_p, n_t):
@@ -85,3 +88,31 @@ def test_get_param_grids_from_u_param_grids():
     assert np.all(lgtc_bl_grid[:, 0] <= CONC_PARAM_BOUNDS["conc_lgtc"][1])
     assert np.all(lgtc_bl_grid[:, 1] >= CONC_PARAM_BOUNDS["conc_beta_late"][0])
     assert np.all(lgtc_bl_grid[:, 1] <= CONC_PARAM_BOUNDS["conc_beta_late"][1])
+
+
+def test_multigrid_preds_are_always_finite():
+    n_p50 = 50
+    p50_arr = np.linspace(0, 1, n_p50)
+
+    n_tarr = 35
+    tarr = np.linspace(1, 13.8, n_tarr)
+
+    lgmarr = np.linspace(10, 16, 10)
+
+    n_grid = 2_000
+    n_sig = 4
+
+    ran_key = jran.PRNGKey(0)
+
+    for lgm in lgmarr:
+        singlemass_dpp_params = get_singlemass_params_p50(lgm)
+        ran_key, grid_key = jran.split(ran_key, 2)
+        u_be_boxes, u_lgtc_bl_boxes = dpp_grid_generator(
+            grid_key, p50_arr, singlemass_dpp_params, n_grid, n_sig
+        )
+        args = (singlemass_dpp_params, tarr, p50_arr, u_be_boxes, u_lgtc_bl_boxes)
+        _res = get_multigrid_preds_from_singlemass_params_p50(*args)
+        preds, lgconc_grid, u_p_grids = _res
+        _check_preds_singlemass(preds, n_p50, n_tarr)
+        assert np.all(np.isfinite(lgconc_grid))
+        assert np.all(np.isfinite(u_p_grids))
