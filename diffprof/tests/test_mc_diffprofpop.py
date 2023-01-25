@@ -35,22 +35,26 @@ def test_mc_diffprofpop_is_consistent_with_dpp_predictions():
     n_t = 30
     tarr = np.linspace(1, 13.8, n_t)
 
-    lgm0 = 14.0
-    singlemass_dpp_params = get_singlemass_params_p50(lgm0)
+    for lgm0 in np.linspace(10, 15, 4):
+        singlemass_dpp_params = get_singlemass_params_p50(lgm0)
 
-    p50_arr = np.linspace(0, 1, 50)
-    u_param_grids = get_u_param_grids(ran_key, 3000)
-    u_be_grid, u_lgtc_bl_grid = u_param_grids
-    args = (singlemass_dpp_params, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
-    dpp_preds = get_predictions_from_singlemass_params_p50(*args)
-    avg_log_conc_p50_dpp = dpp_preds[0]
+        p50_arr = np.linspace(0, 1, 50)
+        u_param_grids = get_u_param_grids(ran_key, 30_000)
+        u_be_grid, u_lgtc_bl_grid = u_param_grids
+        args = (singlemass_dpp_params, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid)
+        dpp_preds = get_predictions_from_singlemass_params_p50(*args)
+        avg_log_conc_p50_dpp = dpp_preds[0]
 
-    n_p = 400
-    p50_sample = np.zeros(n_p) + p50_arr[0]
+        n_p = 400
+        for ip, p50 in enumerate(p50_arr):
+            p50_sample = np.zeros(n_p) + p50
+            avg_log_conc_p50_dpp_ip = avg_log_conc_p50_dpp[ip, :]
 
-    lgc_sample = mc_halo_population_singlemass(
-        ran_key, tarr, p50_sample, singlemass_dpp_params
-    )
-    avg_log_conc_p50_mc_dpp = np.mean(lgc_sample, axis=0)
+            lgc_sample = mc_halo_population_singlemass(
+                ran_key, tarr, p50_sample, singlemass_dpp_params
+            )
+            avg_log_conc_p50_mc = np.mean(lgc_sample, axis=0)
 
-    assert np.allclose(avg_log_conc_p50_dpp, avg_log_conc_p50_mc_dpp, atol=0.1)
+            assert np.allclose(
+                10**avg_log_conc_p50_dpp_ip, 10**avg_log_conc_p50_mc, rtol=0.1
+            )
