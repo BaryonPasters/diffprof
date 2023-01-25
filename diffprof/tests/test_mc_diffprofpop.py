@@ -88,8 +88,9 @@ def test_mc_diffprofpop_is_consistent_with_dpp_multigrid_predictions():
         u_be_grids, u_lgtc_bl_grids = u_param_grids
         args = (singlemass_dpp_params, tarr, p50_arr, u_be_grids, u_lgtc_bl_grids)
 
-        dpp_preds = get_multigrid_preds_from_singlemass_params_p50(*args)
-        avg_log_conc_p50_dpp = dpp_preds[0]
+        _res = get_multigrid_preds_from_singlemass_params_p50(*args)
+        preds, lgconc_grid, param_grids = _res
+        avg_log_conc_p50_dpp = preds[0]
 
         n_p = 400
         for ip, p50 in enumerate(p50_arr):

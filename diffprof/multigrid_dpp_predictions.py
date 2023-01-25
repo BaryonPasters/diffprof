@@ -67,7 +67,7 @@ def get_multigrid_preds_from_singlemass_params_p50(
     std_log_conc_p50 = jnp.sqrt(variance_log_conc_p50)
 
     preds = avg_log_conc_p50, avg_log_conc_lgm0, std_log_conc_lgm0, std_log_conc_p50
-    return preds
+    return preds, lgconc_p50_grids, combined_weights
 
 
 @jjit
