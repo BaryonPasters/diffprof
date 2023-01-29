@@ -19,6 +19,7 @@ from .diffprofpop_p50_dependence import get_chol_lgtc_bl
 from .diffprofpop_p50_dependence import lgc_vs_lgt_p50_pop
 from .diffprofpop_p50_dependence import _get_cov_scalar, parse_all_params
 from .nfw_evolution import _get_lgtc, _get_beta_early, _get_beta_late
+from .nfw_evolution import _get_u_beta_early, CONC_PARAM_BOUNDS
 from .bpl_dpp import CONC_K
 
 
@@ -211,13 +212,19 @@ def _single_ubox_generator_1d(ran_key, nsig, ngrid):
     return grid
 
 
+def _be_box_generator(ran_key, ngrid):
+    xmin, xmax = CONC_PARAM_BOUNDS["conc_beta_early"]
+    grid = jran.uniform(ran_key, minval=xmin, maxval=xmax, shape=(ngrid,))
+    return grid
+
+
 def _single_ubox_generator_nd(ran_key, nsig, ngrid, ndim):
     grid = jran.uniform(ran_key, minval=-nsig, maxval=nsig, shape=(ngrid, ndim))
     return grid
 
 
-multi_ubox_generator_1d = jjit(
-    vmap(_single_ubox_generator_1d, in_axes=(0, None, None)), static_argnums=2
+multi_be_box_generator = jjit(
+    vmap(_be_box_generator, in_axes=(0, None)), static_argnums=(1,)
 )
 multi_ubox_generator_nd = jjit(
     vmap(_single_ubox_generator_nd, in_axes=(0, None, None, None)),
@@ -251,7 +258,7 @@ def dpp_grid_generator(ran_key, p50_arr, singlemass_dpp_params, n_grid, nsig):
     be_keys = jran.split(be_key, n_p50)
     lgtc_bl_keys = jran.split(lgtc_bl_key, n_p50)
 
-    be_boxes = multi_ubox_generator_1d(be_keys, nsig, n_grid)
+    be_boxes = multi_be_box_generator(be_keys, n_grid)
     lgtc_bl_boxes = multi_ubox_generator_nd(lgtc_bl_keys, nsig, n_grid, 2)
 
     _res = get_dpp_means_and_covs_multi_p50(p50_arr, CONC_K, singlemass_dpp_params)
@@ -260,7 +267,7 @@ def dpp_grid_generator(ran_key, p50_arr, singlemass_dpp_params, n_grid, nsig):
 
     mean_u_be = mean_u_be.reshape((n_p50, 1))
     std_u_be = std_u_be.reshape((n_p50, 1))
-    scaled_u_be_boxes = std_u_be * be_boxes + mean_u_be
+    scaled_u_be_boxes = _get_u_beta_early(be_boxes)
 
     scaled_u_lgtc_bl_boxes = _eigenrotate_and_shift_multibox(
         lgtc_bl_boxes, mu_u_lgtc_bl, cov_u_lgtc_bl
