@@ -212,9 +212,8 @@ def _single_ubox_generator_1d(ran_key, nsig, ngrid):
     return grid
 
 
-def _be_box_generator(ran_key, ngrid):
-    xmin, xmax = CONC_PARAM_BOUNDS["conc_beta_early"]
-    grid = jran.uniform(ran_key, minval=xmin, maxval=xmax, shape=(ngrid,))
+def _be_box_generator(ran_key, be_lo, be_hi, ngrid):
+    grid = jran.uniform(ran_key, minval=be_lo, maxval=be_hi, shape=(ngrid,))
     return grid
 
 
@@ -224,7 +223,7 @@ def _single_ubox_generator_nd(ran_key, nsig, ngrid, ndim):
 
 
 multi_be_box_generator = jjit(
-    vmap(_be_box_generator, in_axes=(0, None)), static_argnums=(1,)
+    vmap(_be_box_generator, in_axes=(0, 0, 0, None)), static_argnums=(3,)
 )
 multi_ubox_generator_nd = jjit(
     vmap(_single_ubox_generator_nd, in_axes=(0, None, None, None)),
@@ -258,7 +257,6 @@ def dpp_grid_generator(ran_key, p50_arr, singlemass_dpp_params, n_grid, nsig):
     be_keys = jran.split(be_key, n_p50)
     lgtc_bl_keys = jran.split(lgtc_bl_key, n_p50)
 
-    be_boxes = multi_be_box_generator(be_keys, n_grid)
     lgtc_bl_boxes = multi_ubox_generator_nd(lgtc_bl_keys, nsig, n_grid, 2)
 
     _res = get_dpp_means_and_covs_multi_p50(p50_arr, CONC_K, singlemass_dpp_params)
@@ -267,6 +265,28 @@ def dpp_grid_generator(ran_key, p50_arr, singlemass_dpp_params, n_grid, nsig):
 
     mean_u_be = mean_u_be.reshape((n_p50, 1))
     std_u_be = std_u_be.reshape((n_p50, 1))
+
+    mean_be = _get_beta_early(mean_u_be)
+    be_lo = _get_beta_early(mean_u_be - nsig * std_u_be)
+    be_hi = _get_beta_early(mean_u_be + nsig * std_u_be)
+
+    delta_be_lo_bound = mean_be - CONC_PARAM_BOUNDS["conc_beta_early"][0]
+    delta_be_hi_bound = CONC_PARAM_BOUNDS["conc_beta_early"][1] - mean_be
+
+    delta_be_lo_min = delta_be_lo_bound / 10.0
+    delta_be_hi_min = delta_be_hi_bound / 10.0
+
+    delta_be_lo = mean_be - be_lo
+    delta_be_hi = be_hi - mean_be
+
+    delta_be_lo = jnp.where(delta_be_lo < delta_be_lo_min, delta_be_lo_min, delta_be_lo)
+    delta_be_hi = jnp.where(delta_be_hi < delta_be_hi_min, delta_be_hi_min, delta_be_hi)
+
+    be_lo = mean_be - delta_be_lo
+    be_hi = mean_be + delta_be_hi
+
+    be_boxes = multi_be_box_generator(be_keys, be_lo, be_hi, n_grid)
+
     scaled_u_be_boxes = _get_u_beta_early(be_boxes)
 
     scaled_u_lgtc_bl_boxes = _eigenrotate_and_shift_multibox(
