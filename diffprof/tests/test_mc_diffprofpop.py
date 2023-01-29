@@ -71,10 +71,10 @@ def test_mc_diffprofpop_is_consistent_with_dpp_multigrid_predictions():
     """
     ran_key = jran.PRNGKey(0)
     n_t = 30
-    tarr = np.linspace(1, 13.8, n_t)
+    tarr = np.linspace(2, 13.8, n_t)
 
     p50_arr = np.linspace(0, 1, 50)
-    n_grid = 5_000
+    n_grid = 15_000
     n_sig = 5
 
     for lgm0 in np.linspace(10, 15, 4):
