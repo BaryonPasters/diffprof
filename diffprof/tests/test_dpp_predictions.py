@@ -3,7 +3,6 @@
 import numpy as np
 from jax import random as jran
 from ..dpp_predictions import _get_preds_singlemass, get_param_grids_from_u_param_grids
-from ..dpp_predictions import get_predictions_from_singlemass_params_p50
 from ..bpl_dpp import DEFAULT_PARAMS
 from ..nfw_evolution import CONC_PARAM_BOUNDS
 from ..diffprofpop import get_singlemass_params_p50
@@ -57,14 +56,18 @@ def test_get_predictions_from_singlemass_params_p50():
     n_p = 15
     p50_arr = np.linspace(0.1, 0.9, n_p)
 
-    n_param_grid = 5
-    u_be_grid = np.random.uniform(-10, 10, n_param_grid)
-    u_lgtc_bl_grid = np.random.uniform(-10, 10, size=(n_param_grid, 2))
+    n_grid = 500
+    n_sig = 5
+    grid_key = jran.PRNGKey(0)
+    singlemass_dpp_params = get_singlemass_params_p50(14.0)
+    u_be_boxes, u_lgtc_bl_boxes = dpp_grid_generator(
+        grid_key, p50_arr, singlemass_dpp_params, n_grid, n_sig
+    )
 
     lgm0 = 14.0
-    singlemass_params_p50 = get_singlemass_params_p50(lgm0, *DEFAULT_PARAMS.values())
-    args = singlemass_params_p50, tarr, p50_arr, u_be_grid, u_lgtc_bl_grid
-    preds_singlemass = get_predictions_from_singlemass_params_p50(*args)
+    singlemass_dpp_params = get_singlemass_params_p50(lgm0, *DEFAULT_PARAMS.values())
+    args = (singlemass_dpp_params, tarr, p50_arr, u_be_boxes, u_lgtc_bl_boxes)
+    preds_singlemass = get_multigrid_preds_from_singlemass_params_p50(*args)[0]
     _check_preds_singlemass(preds_singlemass, n_p, n_t)
 
 
