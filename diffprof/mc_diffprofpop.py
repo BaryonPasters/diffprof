@@ -44,8 +44,8 @@ def mc_halo_population_singlemass(ran_key, tarr, p50, singlemass_dpp_params):
     lgtarr = jnp.log10(tarr)
 
     # Calculate the means and covariances defining the population
-    _res = get_means_and_covs(p50, CONC_K, singlemass_dpp_params)
-    mean_u_be, std_u_be, mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl = _res
+    means_and_covs = get_means_and_covs(p50, CONC_K, singlemass_dpp_params)
+    mean_u_be, std_u_be, mean_u_lgtc, mean_u_bl, cov_u_lgtc_bl = means_and_covs
 
     be_key, lgtc_bl_key = jran.split(ran_key, 2)
 
@@ -69,4 +69,7 @@ def mc_halo_population_singlemass(ran_key, tarr, p50, singlemass_dpp_params):
     # Calculate the c(t) trajectories for the population of parameters
     lgc_sample = lgc_vs_lgt_pop(lgtarr, lgtc_sample, CONC_K, be_sample, bl_sample)
 
-    return lgc_sample
+    dp_params = be_sample, lgtc_sample, bl_sample
+    u_dp_params = u_be_sample, u_lgtc_sample, u_bl_sample
+
+    return lgc_sample, dp_params, u_dp_params, means_and_covs
