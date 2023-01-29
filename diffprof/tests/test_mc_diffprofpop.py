@@ -21,9 +21,10 @@ def test_mc_diffprofpop_has_correct_shape():
 
     singlemass_dpp_params = get_singlemass_params_p50(lgm0)
 
-    lgc_sample = mc_halo_population_singlemass(
+    _res = mc_halo_population_singlemass(
         ran_key, tarr, p50_sample, singlemass_dpp_params
     )
+    lgc_sample = _res[0]
 
     assert lgc_sample.shape == (n_p, n_t)
 
@@ -56,7 +57,7 @@ def test_mc_diffprofpop_is_consistent_with_dpp_predictions():
 
             lgc_sample = mc_halo_population_singlemass(
                 ran_key, tarr, p50_sample, singlemass_dpp_params
-            )
+            )[0]
             avg_log_conc_p50_mc = np.mean(lgc_sample, axis=0)
 
             assert np.allclose(
@@ -99,7 +100,7 @@ def test_mc_diffprofpop_is_consistent_with_dpp_multigrid_predictions():
 
             lgc_sample = mc_halo_population_singlemass(
                 ran_key, tarr, p50_sample, singlemass_dpp_params
-            )
+            )[0]
             avg_log_conc_p50_mc = np.mean(lgc_sample, axis=0)
 
             assert np.allclose(
