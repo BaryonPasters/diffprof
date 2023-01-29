@@ -3,7 +3,6 @@
 import numpy as np
 from jax import random as jran
 from ..dpp_predictions import _get_preds_singlemass, get_param_grids_from_u_param_grids
-from ..dpp_predictions import get_predictions_from_singlemass_params_p50
 from ..bpl_dpp import DEFAULT_PARAMS
 from ..nfw_evolution import CONC_PARAM_BOUNDS
 from ..diffprofpop import get_singlemass_params_p50
